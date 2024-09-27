@@ -1,0 +1,2 @@
+//check all delete methods, i dont think use the whole entity as parameter is a good idea. using id instead 
+//
