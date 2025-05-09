@@ -48,6 +48,13 @@ public class ErrorUtil {
 	public final String ROLE_UPDATE_ERROR = "ROLE_UPDATE_ERROR";
 	public final String ROLE_PATCH_ERROR = "ROLE_PATCH_ERROR";
 	public final String ROLE_DELETE_ERROR = "ROLE_DELETE_ERROR";
+	
+	// Post-related errors
+	public final String POST_NOT_FOUND = "POST_NOT_FOUND";
+	public final String POST_GET_ERROR = "POST_GET_ERROR";
+	public final String POST_UPDATE_ERROR = "POST_UPDATE_ERROR";
+	public final String POST_PATCH_ERROR = "POST_PATCH_ERROR";
+	public final String POST_DELETE_ERROR = "POST_DELETE_ERROR";
 
 	// Account-related errors
 	public final String ACCOUNT_LOCKED = "ACCOUNT_LOCKED";
@@ -176,7 +183,7 @@ public class ErrorUtil {
             HttpStatus.INTERNAL_SERVER_ERROR)),
         
         
-      //CRUD MEDIA ERRORS
+      //CRUD ROLE ERRORS
         Map.entry(ROLE_NOT_FOUND, new ApiException(
             MessageUtil.getMessage("role.not.found"),
             ROLE_NOT_FOUND,
@@ -200,6 +207,33 @@ public class ErrorUtil {
         Map.entry(ROLE_DELETE_ERROR, new ApiException(
         	MessageUtil.getMessage("role.delete.error"),
         	ROLE_DELETE_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        
+        
+        //CRUD POST ERRORS
+        Map.entry(POST_NOT_FOUND, new ApiException(
+            MessageUtil.getMessage("post.not.found"),
+            POST_NOT_FOUND,
+            HttpStatus.NOT_FOUND)),
+        
+        Map.entry(POST_GET_ERROR, new ApiException(
+        	MessageUtil.getMessage("post.get.error"),
+        	POST_GET_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        		
+        Map.entry(POST_UPDATE_ERROR, new ApiException(
+        	MessageUtil.getMessage("post.update.error"),
+        	POST_UPDATE_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        
+        Map.entry(POST_PATCH_ERROR, new ApiException(
+        	MessageUtil.getMessage("post.patch.error"),
+        	POST_PATCH_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        		
+        Map.entry(POST_DELETE_ERROR, new ApiException(
+        	MessageUtil.getMessage("post.delete.error"),
+        	POST_DELETE_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR)),
         
         

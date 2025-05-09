@@ -49,7 +49,7 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 	)
 	private List<Role> roles;
 
-	@Column(name = "email")
+	@Column(name = "email", unique = true)
 	@Email(message = "Invalid email")
 	@NotBlank(message = "Email is required")
 	private String email;

@@ -1,0 +1,26 @@
+PUT _index_template/post_template
+{
+  "index_patterns": ["post*"],
+  "template": {
+    "mappings": {
+      "properties": {
+        "id": { "type": "integer" },
+        "user_id": { "type": "integer" },
+        "username": {
+          "type": "search_as_you_type",
+          "fields": {
+            "keyword": { "type": "keyword" }
+          }
+        },
+        "content": { "type": "text" },
+        "likes": { "type": "integer" },
+        "views": { "type": "integer" },
+        "comments": { "type": "integer" },
+        "created_date": { "type": "date" },
+        "status": { "type": "integer" },
+        "location": { "type": "geo_point" }
+      }
+    }
+  },
+  "priority": 1
+}

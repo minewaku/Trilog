@@ -46,7 +46,7 @@ public class UserController {
 	private UploadFileFacade uploadFileFacade;
 
 	@GetMapping("")
-	public ResponseEntity<Page<UserDTO>> findAll(HttpServletRequest request, Pageable pageable, Map<String, String> params) {
+	public ResponseEntity<Page<UserDTO>> findAll(@RequestParam Map<String, String> params, Pageable pageable) {
 		return ResponseEntity.status(HttpStatus.OK).body(userService.findAll(pageable, params));
 	}
 

@@ -12,9 +12,15 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 
 @SuperBuilder
-public class RoleDTO extends BaseDTO {
+public class PostDTO extends BaseDTO {
+
 	private Integer userId;
-    private String name;
-    private String description; 
-    private Boolean isDeleted;
+	private String username;
+    private String content;
+    private Integer status;
+    private Integer likes;
+    private Integer views;
+    private Integer comments;
+    private Double lat;
+    private Double lon;
 }

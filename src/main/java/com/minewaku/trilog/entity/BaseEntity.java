@@ -30,10 +30,10 @@ public abstract class BaseEntity implements Serializable{
 	@Column(name = "id")
 	private Integer id;
 
-    @Column(name = "createdDate")
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @Column(name = "modifiedDate")
+    @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
 
     @PrePersist
