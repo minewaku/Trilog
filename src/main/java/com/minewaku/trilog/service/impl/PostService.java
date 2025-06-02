@@ -3,6 +3,7 @@ package com.minewaku.trilog.service.impl;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +64,9 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public StatusResponse delete(int[] ids) {
+    public StatusResponse delete(List<Integer> ids) {
         try {
-            postRepository.softDeletePosts(Arrays.stream(ids).boxed().collect(Collectors.toList())); 
+            postRepository.softDeletePosts(ids); 
             return new StatusResponse(MessageUtil.getMessage("success.delete"), ZonedDateTime.now(ZoneId.of("Z")));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

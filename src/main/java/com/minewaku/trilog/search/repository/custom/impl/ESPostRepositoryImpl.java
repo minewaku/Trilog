@@ -49,8 +49,6 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom {
                 "1.0 + " +
                 // Likes with saturation (equivalent to your saturation function with pivot=1000)
                 "(doc['likes'].value / (doc['likes'].value + 1000.0)) * 0.6 + " +
-                // Views with log scaling (equivalent to your log function with scaling factor=5)
-                "(doc['views'].value == 0 ? 0 : Math.log(1 + doc['views'].value * 5.0) / Math.log(10)) * 0.1 + " +
                 // Comments with sigmoid function (equivalent to your sigmoid with pivot=50, exponent=2.5)
                 "(1.0 / (1.0 + Math.exp(-2.5 * (doc['comments'].value - 50.0) / 50.0))) * 0.3";
 
@@ -160,8 +158,6 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom {
                 "1.0 + " +
                 // Likes with saturation (equivalent to your saturation function with pivot=1000)
                 "(doc['likes'].value / (doc['likes'].value + 1000.0)) * 0.6 + " +
-                // Views with log scaling (equivalent to your log function with scaling factor=5)
-                "(doc['views'].value == 0 ? 0 : Math.log(1 + doc['views'].value * 5.0) / Math.log(10)) * 0.1 + " +
                 // Comments with sigmoid function (equivalent to your sigmoid with pivot=50, exponent=2.5)
                 "(1.0 / (1.0 + Math.exp(-2.5 * (doc['comments'].value - 50.0) / 50.0))) * 0.3";
 

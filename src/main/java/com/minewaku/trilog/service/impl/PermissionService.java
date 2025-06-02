@@ -2,6 +2,7 @@ package com.minewaku.trilog.service.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -124,10 +125,9 @@ public class PermissionService implements IPermissionService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(List<Integer> ids) {
         try {
-            permissionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.permission"))); 
-            permissionRepository.deleteById(id);
+            permissionRepository.deleteAllById(ids);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

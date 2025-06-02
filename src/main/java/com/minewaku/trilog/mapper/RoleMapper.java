@@ -14,7 +14,6 @@ public interface RoleMapper {
     RoleDTO entityToDto(Role entity);
 
     @Mapping(target = "permissions", ignore = true)
-    @Mapping(target = "users", ignore = true)
     Role dtoToEntity(RoleDTO dto);
     
 }

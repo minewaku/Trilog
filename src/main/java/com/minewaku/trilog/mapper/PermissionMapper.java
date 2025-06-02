@@ -13,6 +13,5 @@ public interface PermissionMapper {
     @InheritConfiguration
     PermissionDTO entityToDto(Permission entity);
     
-    @Mapping(target = "roles", ignore = true)
     Permission dtoToEntity(PermissionDTO dto);
 }

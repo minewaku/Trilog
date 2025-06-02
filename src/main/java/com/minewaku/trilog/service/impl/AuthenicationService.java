@@ -2,10 +2,10 @@ package com.minewaku.trilog.service.impl;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -76,7 +76,8 @@ public class AuthenicationService {
 		Role userRole = roleRepository.findByName("USER").orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND));
 
 		// Create the roles list
-		List<Role> defaultRoles = new ArrayList<>();
+		
+		Set<Role> defaultRoles = new HashSet<>();
 		defaultRoles.add(userRole);
 
 		// Create and save the user with explicit field setting
@@ -104,7 +105,8 @@ public class AuthenicationService {
 			} else if (user.getIsDeleted()) {
 				throw errorUtil.ERROR_DETAILS.get(errorUtil.INVALID_CREDENTIALS);
 			}
-			var jwtToken = jwtUtil.generateJwtToken(user);
+			
+			var jwtToken = jwtUtil.generateJwtToken(null, null, user);
 			var refreshToken = jwtUtil.generateRefreshToken();
 			jwtUtil.saveRefreshToken(refreshToken, jwtToken, user);
 
@@ -140,7 +142,7 @@ public class AuthenicationService {
 //		}
 
 		var user = userRepository.findByEmail((String) refreshData.get("email")).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
-		var newJwtToken = jwtUtil.generateJwtToken(user);
+		var newJwtToken = jwtUtil.generateJwtToken(null, null, user);
 		jwtUtil.deleteRefreshToken(refreshToken);
 
 		LogUtil.LOGGER.info("returning JWT: " + newJwtToken);

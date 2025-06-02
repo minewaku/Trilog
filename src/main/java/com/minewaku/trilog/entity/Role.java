@@ -1,7 +1,7 @@
 package com.minewaku.trilog.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -33,16 +33,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Role extends BaseEntity {
 
-	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-	private List<User> users;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "role_permission",
         joinColumns = @JoinColumn(name = "role_id"),
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
-    private List<Permission> permissions;
+    private Set<Permission> permissions;
 
     @Column(name = "name", length = 255, unique = true)
     @NotBlank(message = "Name is required")
@@ -59,20 +56,19 @@ public class Role extends BaseEntity {
     @PrePersist
 	protected void onCreate() {
     	super.onCreate();
-    	users = new ArrayList<>();
-    	permissions = new ArrayList<>();
+    	permissions = new HashSet<>();
 		isDeleted = false;
 	}
 
-    public List<SimpleGrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    public Set<SimpleGrantedAuthority> getAuthorities() {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         for (Permission permission : permissions) {
             authorities.add(new SimpleGrantedAuthority(permission.getName()));
         }
-
         authorities.add(new SimpleGrantedAuthority("ROLE" + this.name));
         return authorities;
     }
+
     
     @Override
     public String toString() {

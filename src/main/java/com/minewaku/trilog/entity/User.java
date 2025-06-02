@@ -1,9 +1,10 @@
 package com.minewaku.trilog.entity;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.CredentialsContainer;
@@ -47,7 +48,7 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 	    joinColumns = @JoinColumn(name = "user_id"),
 	    inverseJoinColumns = @JoinColumn(name = "role_id")
 	)
-	private List<Role> roles;
+	private Set<Role> roles;
 
 	@Column(name = "email", unique = true)
 	@Email(message = "Invalid email")
@@ -110,7 +111,7 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 		
 		//avoiding override current value
 		if (roles == null) {			
-			roles = new ArrayList<>();
+			roles = new HashSet<>();
 		}
 		
 		if (address == null) {
@@ -136,10 +137,11 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		 return roles.stream()
-		            .map(role -> new SimpleGrantedAuthority(role.getName()))
-		            .toList();
+	    return roles.stream()
+	                .map(role -> new SimpleGrantedAuthority(role.getName()))
+	                .collect(Collectors.toSet());
 	}
+
 
 	@Override
 	public String getPassword() {

@@ -45,9 +45,6 @@ public class ESPost {
     private Integer likes;
     
     @Field(type = FieldType.Integer)
-    private Integer views;
-    
-    @Field(type = FieldType.Integer)
     private Integer comments;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

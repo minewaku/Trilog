@@ -3,8 +3,10 @@ package com.minewaku.trilog.service.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,9 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.minewaku.trilog.dto.RoleDTO;
+import com.minewaku.trilog.entity.Permission;
 import com.minewaku.trilog.entity.Role;
+import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.mapper.RoleMapper;
 import com.minewaku.trilog.repository.RoleRepository;
+import com.minewaku.trilog.repository.UserRepository;
 import com.minewaku.trilog.service.IRoleService;
 import com.minewaku.trilog.specification.RoleSpecification;
 import com.minewaku.trilog.util.MessageUtil;
@@ -28,6 +33,9 @@ public class RoleService implements IRoleService {
 	
     @Autowired
     private RoleRepository roleRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private RoleMapper mapper;
@@ -85,7 +93,31 @@ public class RoleService implements IRoleService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+    
+    @Override
+	public void	addRolesToUser(int userId, List<Integer> roleIds) {
+		try {
+			User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.user")));
+			Set<Role> roles = roleRepository.findAllById(roleIds).stream().collect(Collectors.toSet());
 
+			if (user.getRoles() == null) {
+				user.setRoles(new HashSet<>());
+			}
+
+			user.getRoles().addAll(roles);
+			userRepository.save(user);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+    @Override
+    public void removeRolesFromUser(int userId, List<Integer> roleIds) {
+		User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.user")));
+		user.setRoles(new HashSet<>());
+		userRepository.save(user);
+    }
+    
     @Override
     public RoleDTO findById(int id) {
         try {
@@ -95,6 +127,41 @@ public class RoleService implements IRoleService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+    
+    @Override
+	public void addPermissionsToRole(int roleId, List<Integer> permissionIds) {
+		try {
+			Role role = roleRepository.findById(roleId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.role")));
+			Set<Permission> permissions = role.getPermissions().stream().collect(Collectors.toSet());
+
+			if (role.getPermissions() == null) {
+				role.setPermissions(new HashSet<>());
+			}
+
+			role.getPermissions().addAll(permissions);
+			roleRepository.save(role);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+    
+	@Override
+	public void removePermissionsFromRole(int roleId, List<Integer> permissionIds) {
+		Role role = roleRepository.findById(roleId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.role")));
+		role.setPermissions(new HashSet<>());
+		roleRepository.save(role);
+	}
+
+//    @Override
+//    public List<RoleDTO> getCurrentUserRoles() {
+//    	try {
+//    		User currentUser = (User) SecurityUtil.getPrincipal();
+//			return currentUser.getRoles().stream().map(role -> mapper.entityToDto(role)).toList();
+//    		
+//    	} catch (Exception e) {
+//    		throw new RuntimeException(e.getMessage(), e);
+//    	}
+//    }
 
     @Override
     public RoleDTO create(RoleDTO role) {
@@ -118,10 +185,9 @@ public class RoleService implements IRoleService {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(List<Integer> ids) {
         try {
-            roleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.role"))); 
-            roleRepository.deleteById(id);
+        	roleRepository.deleteAllById(ids);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

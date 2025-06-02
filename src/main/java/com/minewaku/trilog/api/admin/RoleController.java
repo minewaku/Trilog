@@ -1,5 +1,6 @@
 package com.minewaku.trilog.api.admin;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.minewaku.trilog.dto.RoleDTO;
 import com.minewaku.trilog.service.impl.RoleService;
+import com.minewaku.trilog.util.DataPreprocessingUtil;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -26,6 +28,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/roles")
 public class RoleController {
+	
+	/**
+	 * ALL AVAILABLE APIS
+	 * 
+	 * @summary GET /api/v1/roles - @see {@link #findAll}
+	 * @summary GET /api/v1/roles/search - @see {@link #searchByTerm}
+	 * @summary GET /api/v1/roles/{id} - @see {@link #findById}
+	 * 
+	 * @summary POST /api/v1/roles/{userId}/permissions/{permissionIds} - @see {@link #addPermissionsToRole}
+	 * @summary DELETE /api/v1/roles/{userId}/permissions/{permissionIds} - @see {@link #removePermissionsFromRole}
+	 * 
+	 * @summary POST /api/v1/roles - @see {@link #create}
+	 * @summary PUT /api/v1/roles/{id} - @see {@link #update}
+	 * @summary DELETE /api/v1/roles/{ids} - @see {@link #delete}
+	 * 
+	 */
+	
     @Autowired
     private RoleService roleService;
 
@@ -46,7 +65,21 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(roleService.findById(id));
     }
-
+    
+    @PostMapping("/{roleId}/permissions/{permissionIds}")
+	public ResponseEntity<Void> addPermissionsToRole(@PathVariable int roleId, @RequestBody String permissionIds) {
+    	List<Integer> permisisonIdList = DataPreprocessingUtil.parseCommaSeparatedIds(permissionIds);
+    	roleService.addPermissionsToRole(roleId, permisisonIdList);
+    	return ResponseEntity.status(HttpStatus.OK).build();
+	}
+    
+    @DeleteMapping("/{roleId}/permissions/{permissionIds}")
+    public ResponseEntity<Void> removePermissionsFromRole(@PathVariable int roleId, @RequestBody String permissionIds) {
+    	List<Integer> permisisonIdList = DataPreprocessingUtil.parseCommaSeparatedIds(permissionIds);
+    	roleService.removePermissionsFromRole(roleId, permisisonIdList);
+    	return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    
     @PostMapping("")
     public ResponseEntity<RoleDTO> create(@RequestBody RoleDTO role) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -59,11 +92,11 @@ public class RoleController {
                             .body(roleService.update(id, role));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        roleService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK)
-                            .build();
+    @DeleteMapping("/{ids}")
+    public ResponseEntity<Void> delete(@PathVariable String ids) {
+    	List<Integer> idList = DataPreprocessingUtil.parseCommaSeparatedIds(ids);
+        roleService.delete(idList);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
     
 }

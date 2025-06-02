@@ -1,6 +1,7 @@
 package com.minewaku.trilog.mapper;
 
 import java.util.List;
+import java.util.Set;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -35,7 +36,7 @@ public interface UserMapper {
     void update(@MappingTarget User target, UserDTO source);
 
     @Named("rolesToStrings")
-    default List<String> rolesToStrings(List<Role> roles) {
+    default List<String> rolesToStrings(Set<Role> roles) {
         if (roles == null) {
             return null;
         }

@@ -1,10 +1,16 @@
 package com.minewaku.trilog.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
-
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisKeyCommands;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RedisUtil {
@@ -18,6 +24,11 @@ public class RedisUtil {
         public static final String REFRESH_TOKENS = "refreshTokens:";
         public static final String EMAIL_VERIFICATION_TOKENS = "emailVerificationTokens:";
         public static final String EMAIL_VERIFICATION_PENDING = "emailVerificationPending:";
+        public static final String LIKE_POST_ADD = "like_post_add:";
+        public static final String LIKE_POST_DELETE = "like_post_delete:";
+        public static final String VIEW_POST = "view_post:";
+        public static final String LIKE_POST_QUANTITY = "likePostQuantity:";
+        public static final String VIEW_POST_QUANTITY = "viewPostQuantity:";
     }
     
     public String getKeyWithoutPrefix(String fullKey) {
@@ -27,6 +38,32 @@ public class RedisUtil {
         }
         return fullKey; // Return the full key if there's no colon
     }
+    
+	public Set<Object> getKeysByPrefix(String prefix) {
+		return redisTemplate.keys(prefix + "*");
+	}
+	
+	public Set<String> scanKeysByPrefix(String prefix) {
+        Set<String> keys = new HashSet<>();
+        ScanOptions options = ScanOptions.scanOptions().match(prefix + "*").count(1000).build();
+
+        RedisConnection connection = redisTemplate.getRequiredConnectionFactory().getConnection();
+
+        if (connection instanceof RedisKeyCommands) {
+            RedisKeyCommands keyCommands = (RedisKeyCommands) connection;
+            try (Cursor<byte[]> cursor = keyCommands.scan(options)) {
+                while (cursor.hasNext()) {
+                    keys.add(new String(cursor.next()));
+                }
+            }
+        }
+
+        return keys;
+    }
+    
+	public String makeCompositeKey(String[] keys) {
+		return String.join(":", keys);
+	}
 
     
     // Set a value in Redis with a timeout

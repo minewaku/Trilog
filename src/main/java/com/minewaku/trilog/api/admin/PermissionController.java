@@ -1,5 +1,6 @@
 package com.minewaku.trilog.api.admin;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.minewaku.trilog.dto.PermissionDTO;
 import com.minewaku.trilog.service.impl.PermissionService;
+import com.minewaku.trilog.util.DataPreprocessingUtil;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -26,6 +28,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/permissisons")
 public class PermissionController {
+	
+	/**
+	 * ALL AVAILABLE APIS
+	 * 
+	 * @summary GET /api/v1/permissisons - @see {@link #findAll}
+	 * @summary GET /api/v1/permissisons/search - @see {@link #search}
+	 * @summary GET /api/v1/permissisons/{id} - @see {@link #findById}
+	 * 
+	 * @summary POST /api/v1/permissisons - @see {@link #create}
+	 * @summary PUT /api/v1/permissisons/{id} - @see {@link #update}
+	 * @summary DELETE /api/v1/permissisons/{ids} - @see {@link #delete}
+	 * 
+	 */
+	
     @Autowired
     private PermissionService permissionService;
 
@@ -62,8 +78,9 @@ public class PermissionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        permissionService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable String ids) {
+    	List<Integer> idList = DataPreprocessingUtil.parseCommaSeparatedIds(ids);
+    	permissionService.delete(idList);
         return ResponseEntity.status(HttpStatus.OK)
                             .build();
     }

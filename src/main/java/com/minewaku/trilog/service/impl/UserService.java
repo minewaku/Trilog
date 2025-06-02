@@ -1,14 +1,9 @@
 package com.minewaku.trilog.service.impl;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,14 +13,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.MediaDTO;
+import com.minewaku.trilog.dto.RoleDTO;
 import com.minewaku.trilog.dto.UserDTO;
 import com.minewaku.trilog.dto.request.RegisterRequest;
-import com.minewaku.trilog.dto.response.StatusResponse;
 import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.entity.Role;
 import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.entity.User_;
 import com.minewaku.trilog.mapper.MediaMapper;
+import com.minewaku.trilog.mapper.RoleMapper;
 import com.minewaku.trilog.mapper.UserMapper;
 import com.minewaku.trilog.repository.MediaRepository;
 import com.minewaku.trilog.repository.RoleRepository;
@@ -56,6 +52,9 @@ public class UserService implements IUserService {
     
     @Autowired
     private UserMapper userMapper;
+    
+    @Autowired
+    private RoleMapper mapper;
 
     @Autowired
     private MediaMapper mediaMapper;
@@ -119,6 +118,21 @@ public class UserService implements IUserService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+    
+    @Override
+	public List<RoleDTO> getRolesByUserId(int userId) {
+		try {
+            return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.user")))
+            		.getRoles()
+            		.stream()
+            		.map(role -> mapper.entityToDto(role))
+            		.toList();
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
+
 
     @Override
     public UserDTO create(RegisterRequest request) {
@@ -130,7 +144,7 @@ public class UserService implements IUserService {
     		Role userRole = roleRepository.findByName("USER").orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND));
 
     		// Create the roles list
-    		List<Role> defaultRoles = new ArrayList<>();
+    		Set<Role> defaultRoles = new HashSet<>();
     		defaultRoles.add(userRole);
 
     		// Create and save the user with explicit field setting
@@ -167,10 +181,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public StatusResponse delete(int[] ids) {
+    public void delete(List<Integer> ids) {
         try {
-            userRepository.softDeleteUsers(Arrays.stream(ids).boxed().collect(Collectors.toList())); 
-            return new StatusResponse(MessageUtil.getMessage("success.delete"), ZonedDateTime.now(ZoneId.of("Z")));
+            userRepository.softDeleteUsers(ids); 
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

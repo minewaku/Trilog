@@ -26,6 +26,17 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/v1/media")
 public class MediaController {
+	
+	/**
+	 * ALL AVAILABLE APIS
+	 * 
+	 * @summary GET /api/v1/media/{id} - @see {@link #findById}
+	 * 
+	 * @summary POST /api/v1/media - @see {@link #create}
+	 * @summary PUT /api/v1/media/{id} - @see {@link #update}
+	 * @summary DELETE /api/v1/media/{id} - @see {@link #delete}
+	 * 
+	 */
 
     @Autowired
     private MediaService mediaService;

@@ -1,7 +1,7 @@
 package com.minewaku.trilog.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,10 +26,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "permission")
 @SuperBuilder
 public class Permission extends BaseEntity {
-
-    @ManyToMany(fetch = FetchType.LAZY, 
-                mappedBy = "permissions")
-    private List<Role> roles;
 	
 	@Column(name = "name", length = 255, unique = true)
 	@NotBlank(message = "Name is required")
@@ -46,7 +42,6 @@ public class Permission extends BaseEntity {
     @PrePersist
 	protected void onCreate() {
     	super.onCreate();
-    	roles = new ArrayList<>();
 		isDeleted = false;
 	}
 }

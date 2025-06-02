@@ -1,3 +1,4 @@
+
 package com.minewaku.trilog.util;
 
 import java.security.Key;
@@ -26,8 +27,8 @@ public class JwtUtil {
 	
     private final static String SECRET_KEY = "943d7a6eb3d52c7a233d81d96f0da76ed964777f7a51c9916a829fea261aa2aa";
     
-//    private static final long ACCESS_TOKEN_EXPIRATION = 86400000; // 1 day (in miliseconds)
-//    private static final long REFRESH_TOKEN_EXPIRATION = 2592000000L; // 30 days (in miliseconds)
+//    private static final long ACCESS_TOKEN_EXPIRATION = 864000000; // 1 day (in miliseconds)
+//    private static final long REFRESH_TOKEN_EXPIRATION = 259200000000L; // 30 days (in miliseconds)
     
     //test
     private static final long ACCESS_TOKEN_EXPIRATION = 1800000; // 10 seconds (in milliseconds)
@@ -38,6 +39,10 @@ public class JwtUtil {
     
     @Resource(name = "hashRedisTemplate")
     private RedisTemplate<Object, Object> redisTemplate;
+    
+    public Object extractExtra(String token, String key, Class<?> type) {
+    	return extractClaim(token, claims -> claims.get(key, type));
+    }
 
 	public String extractIssuer(String token) {
 		return extractClaim(token, Claims::getIssuer);
@@ -67,7 +72,7 @@ public class JwtUtil {
 		return extractClaim(token, Claims::getId);
 	}
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
     	LogUtil.LOGGER.info("claims in extractClaim: " + claims);
         return claimsResolver.apply(claims);
@@ -81,19 +86,9 @@ public class JwtUtil {
                     .getBody();
     }
 
-    public String generateJwtToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), ACCESS_TOKEN_EXPIRATION, userDetails);
+    public String generateJwtToken(Map<String, Object> extraClaims, Long expiration, UserDetails userDetails) {
+        return generateToken(extraClaims, expiration == null ? ACCESS_TOKEN_EXPIRATION : expiration.longValue(), userDetails);
     }
-    
-//	public Cookie generateRefreshToken() {
-//        Cookie refreshToken = new Cookie("refreshToken", UUID.randomUUID().toString());
-//        refreshToken.setHttpOnly(true);
-//        refreshToken.setPath("api/auth/refrehs");
-//        refreshToken.setSecure(true);
-//        refreshToken.setMaxAge((int) REFRESH_TOKEN_EXPIRATION);
-//        
-//        return refreshToken;
-//	}
     
     //remember to set httpOnly and secure to true 
     public ResponseCookie generateRefreshToken() {
@@ -109,7 +104,7 @@ public class JwtUtil {
 	//Optimize this method if you can remove redundant expiration parameter (include it in extraClaims)
     public String generateToken(Map<String, Object> extraClaims, long expiration, UserDetails userDetails) {
     	return Jwts.builder()
-                    .setClaims(extraClaims)
+                    .setClaims(extraClaims == null ? new HashMap<String, Object>() : extraClaims)
                     .setSubject(userDetails.getUsername())
                     .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -137,10 +132,12 @@ public class JwtUtil {
         return !extractExpiration(token).before(new Date());
     }
     
+    
 	public Boolean isRefreshTokenExpired(String refreshToken) {
 		return Long.parseLong((String) redisTemplate.opsForHash().get(refreshToken, "expiration")) < System.currentTimeMillis();
 	}
     
+	
 	//if u can please store the token version in the refresh token
 	public void saveRefreshToken(ResponseCookie refreshToken, String accessToken, UserDetails userDetails) {
 		Map<String, Object> refreshData = new HashMap<>();
@@ -153,9 +150,11 @@ public class JwtUtil {
 		redisTemplate.expire(redisKey, refreshToken.getMaxAge().toMillis(), TimeUnit.MILLISECONDS);
 	}
 	
+	
 	public void deleteRefreshToken(String refreshToken) {
 		redisTemplate.delete(refreshToken);
 	}
+	
 	
 	public Map<Object, Object> getRefreshData(String refreshToken) {
 		return redisTemplate.opsForHash().entries(refreshToken);

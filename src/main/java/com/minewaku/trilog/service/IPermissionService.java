@@ -1,5 +1,6 @@
 package com.minewaku.trilog.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -14,7 +15,7 @@ public interface IPermissionService {
     PermissionDTO findById(int id);
     PermissionDTO create(PermissionDTO Permission);
     PermissionDTO update(int id, PermissionDTO Permission);
-    void delete(int id);
+    void delete(List<Integer> ids);
 
     PermissionDTO findByName(String name);
     

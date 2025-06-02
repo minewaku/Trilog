@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.UserDTO;
 import com.minewaku.trilog.entity.User;
@@ -12,6 +13,7 @@ import com.minewaku.trilog.repository.UserRepository;
 import com.minewaku.trilog.search.repository.custom.ESUserRepositoryCustom;
 import com.minewaku.trilog.search.service.ESIUserService;
 
+@Service
 public class ESUserService implements ESIUserService {
 	
 	@Autowired

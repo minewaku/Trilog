@@ -1,12 +1,17 @@
 package com.minewaku.trilog.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.annotations.DynamicUpdate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -28,6 +33,9 @@ public class Post extends BaseEntity {
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
+    
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Media> media;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -60,6 +68,9 @@ public class Post extends BaseEntity {
 		
 		if(status == null)
 			status = 0;
+		
+		if (media == null)
+			media = new HashSet<>();
 		
 		likes = 0;
 		views = 0;

@@ -55,6 +55,14 @@ public class ErrorUtil {
 	public final String POST_UPDATE_ERROR = "POST_UPDATE_ERROR";
 	public final String POST_PATCH_ERROR = "POST_PATCH_ERROR";
 	public final String POST_DELETE_ERROR = "POST_DELETE_ERROR";
+	
+	//like-related errors
+	public final String LIKE_POST_NOT_FOUND = "LIKE_POST_NOT_FOUND";
+	public final String LIKE_POST_ALREADY_EXIST = "LIKE_POST_ALREADY_EXIST";
+	
+	//view-related errors
+	public final String VIEW_POST_NOT_FOUND = "VIEW_POST_NOT_FOUND";
+	public final String VIEW_POST_ALREADY_EXIST = "VIEW_POST_ALREADY_EXIST";
 
 	// Account-related errors
 	public final String ACCOUNT_LOCKED = "ACCOUNT_LOCKED";
@@ -82,6 +90,9 @@ public class ErrorUtil {
 	
 	// Jwt token errors
 	public final String INVALID_JWT_TOKEN = "INVALID_JWT_TOKEN";
+	
+	// request errors
+	public final String REQUEST_IN_PROGRESS = "REQUEST_IN_PROGRESS";
 	
 	//Considering to switch into ConrrurentHashMap if this map might be modified in runtime for thread safety
 	public final Map<String, ApiException> ERROR_DETAILS = Map.ofEntries(
@@ -263,6 +274,28 @@ public class ErrorUtil {
         	PERMISSION_DELETE_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR)),
         
+//		  LIKE_POST
+		Map.entry(LIKE_POST_NOT_FOUND, new ApiException(
+			MessageUtil.getMessage("like.post.not.found"), 
+			LIKE_POST_NOT_FOUND, 
+			HttpStatus.NOT_FOUND)),
+		
+		Map.entry(LIKE_POST_ALREADY_EXIST, new ApiException(
+			MessageUtil.getMessage("like.post.already.exist"), 
+			LIKE_POST_ALREADY_EXIST, 
+			HttpStatus.BAD_REQUEST)),
+        
+//        VIEW_POST
+		Map.entry(VIEW_POST_NOT_FOUND, new ApiException(
+			MessageUtil.getMessage("view.post.not.found"), 
+			VIEW_POST_NOT_FOUND, 
+			HttpStatus.NOT_FOUND)),
+
+		Map.entry(VIEW_POST_ALREADY_EXIST, new ApiException(
+			MessageUtil.getMessage("view.post.already.exist"), 
+			VIEW_POST_ALREADY_EXIST, 
+			HttpStatus.BAD_REQUEST)),
+        
 //        LOGIN
         Map.entry(ACCOUNT_LOCKED, new ApiException(
         	MessageUtil.getMessage("login.error.account.locked"),
@@ -344,7 +377,12 @@ public class ErrorUtil {
         Map.entry(INVALID_JWT_TOKEN, new ApiException(
         	MessageUtil.getMessage("jwt.token.invalid"),
         	INVALID_JWT_TOKEN,
-            HttpStatus.UNAUTHORIZED))
-        
+            HttpStatus.UNAUTHORIZED)),
+ 
+//		  REQUEST
+        Map.entry(REQUEST_IN_PROGRESS, new ApiException(
+        	MessageUtil.getMessage("request.in.progress"),
+        	REQUEST_IN_PROGRESS,
+            HttpStatus.LOCKED))
 	);
 }
