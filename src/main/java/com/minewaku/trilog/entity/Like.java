@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,8 @@ public class Like {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
     
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = false, updatable = false)
+    @NotNull(message = "Created date cannot be null")
     private LocalDateTime createdDate;
     
     @PrePersist

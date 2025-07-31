@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
-import com.minewaku.trilog.dto.response.CursorPage;
+import com.minewaku.trilog.search.repository.custom.CursorPageBuilder;
 import com.minewaku.trilog.search.repository.custom.ESPostRepositoryCustom;
 import com.minewaku.trilog.util.ErrorUtil;
 
@@ -22,7 +23,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 
-public class ESPostRepositoryImpl implements ESPostRepositoryCustom {
+public class ESPostRepositoryImpl implements ESPostRepositoryCustom, CursorPageBuilder {
 
     @Autowired
     private ElasticsearchClient elasticsearchClient;
@@ -116,26 +117,7 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
-        // Build CursorPage response
-        if (list.size() > cursor.getLimit()) {
-            // We have more results, return with next cursor
-            return CursorPage.<Integer>builder()
-                    .after(list.get(list.size() - 1))
-                    .before(cursor.getAfter()) // Current cursor becomes the 'before' value
-                    .limit(cursor.getLimit())
-                    .total(list.size())
-                    .records(list.subList(0, list.size() - 1)) // Remove the extra item used for cursor
-                    .build();
-        } else {
-            // No more results after this page
-            return CursorPage.<Integer>builder()
-                    .after(null) // No more pages
-                    .before(cursor.getAfter())
-                    .limit(cursor.getLimit())
-                    .total(list.size())
-                    .records(list)
-                    .build();
-        }
+        return CursorPageBuilder.buildCursorResponse(list, cursor);
     }
 
 
@@ -235,86 +217,51 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
-        // Build CursorPage response
-        if (list.size() > cursor.getLimit()) {
-            // We have more results, return with next cursor
-            return CursorPage.<Integer>builder()
-                    .after(list.get(list.size() - 1))
-                    .before(cursor.getAfter()) // Current cursor becomes the 'before' value
-                    .limit(cursor.getLimit())
-                    .total(list.size())
-                    .records(list.subList(0, list.size() - 1)) // Remove the extra item used for cursor
-                    .build();
-        } else {
-            // No more results after this page
-            return CursorPage.<Integer>builder()
-                    .after(null) // No more pages
-                    .before(cursor.getAfter())
-                    .limit(cursor.getLimit())
-                    .total(list.size())
-                    .records(list)
-                    .build();
-        }
+        return CursorPageBuilder.buildCursorResponse(list, cursor);
     }
     
-//    @Override
-//    public CursorPage<Integer> findByUsernameKeywordOrderByCreatedDateDesc(String username, Cursor cursor) throws IOException {
-//        
-//    	if (username == null || username.isEmpty()) {
-//            throw errorUtil.ERROR_DETAILS.get(errorUtil.INVALID_PARAMETERS);
-//        }
-//        if (cursor == null) {
-//            throw new IllegalArgumentException("Cursor cannot be null");
-//        }
-//        if (cursor.getLimit() <= 0) {
-//            throw new IllegalArgumentException("Size must be positive");
-//        }
-//        
-//        var searchBuilder = new SearchRequest.Builder()
-//	    	.index("post")
-//	    	.size(cursor.getLimit() + 1) //give an extra row in order to get the after cursor position
-//			.sort(sort -> sort
-//				.field(f -> f
-//					.field("postId")
-//					.order(SortOrder.Desc)
-//				)
-//			)
-//			.query(q -> q
-//				.term(t -> t
-//					.field("username")
-//					.value(username)
-//				)
-//			);
-//        
-//        if (cursor.getAfter() != null) {
-//            List<FieldValue> searchAfterValues = List.of(FieldValue.of(cursor.getAfter()));
-//            searchBuilder.searchAfter(searchAfterValues);
-//        }
-//        
-//        SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
-//
-//        List<Integer> list = response.hits().hits().stream()
-//            .map(Hit::source)
-//            .filter(Objects::nonNull)
-//            .collect(Collectors.toList());
-//        
-//        
-//        if(list.size() > cursor.getLimit()) {
-//			return CursorPage.<Integer>builder()
-//					.after(list.get(list.size() - 1))
-//					.before(cursor.getAfter())
-//					.limit(cursor.getLimit())
-//					.total(list.size())
-//		            .records(list.subList(0, list.size() - 1))
-//		            .build();
-//        }
-//        
-//		return CursorPage.<Integer>builder()
-//				.after(null)
-//				.before(cursor.getAfter())
-//				.limit(cursor.getLimit())
-//				.total(list.size())
-//				.records(list)
-//				.build();
-//    }
+    @Override
+    public CursorPage<Integer> findByUserIdOrderByCreatedDateDesc(Integer userId, Cursor cursor) throws IOException {
+        
+    	if (userId == null) {
+            throw errorUtil.ERROR_DETAILS.get(errorUtil.INVALID_PARAMETERS);
+        }
+        if (cursor == null) {
+            throw new IllegalArgumentException("Cursor cannot be null");
+        }
+        if (cursor.getLimit() <= 0) {
+            throw new IllegalArgumentException("Size must be positive");
+        }
+        
+        var searchBuilder = new SearchRequest.Builder()
+	    	.index("post")
+	    	.size(cursor.getLimit() + 1) //give an extra row in order to get the after cursor position
+			.sort(sort -> sort
+				.field(f -> f
+					.field("postId")
+					.order(SortOrder.Desc)
+				)
+			)
+			.query(q -> q
+				.term(t -> t
+					.field("userId")
+					.value(userId)
+				)
+			);
+        
+        if (cursor.getAfter() != null) {
+            List<FieldValue> searchAfterValues = List.of(FieldValue.of(cursor.getAfter()));
+            searchBuilder.searchAfter(searchAfterValues);
+        }
+        
+        SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
+
+        List<Integer> list = response.hits().hits().stream()
+            .map(Hit::source)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        
+        
+        return CursorPageBuilder.buildCursorResponse(list, cursor);
+    }
 }

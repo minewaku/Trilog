@@ -12,6 +12,7 @@ import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.mapper.MediaMapper;
 import com.minewaku.trilog.repository.MediaRepository;
 import com.minewaku.trilog.service.IMediaService;
+import com.minewaku.trilog.util.ErrorUtil;
 import com.minewaku.trilog.util.LogUtil;
 import com.minewaku.trilog.util.MessageUtil;
 
@@ -19,60 +20,50 @@ import com.minewaku.trilog.util.MessageUtil;
 public class MediaService implements IMediaService {
 
     @Autowired
-    private MediaRepository imageRepository;
+    private MediaRepository mediaRepository;
 
     @Autowired
     private MediaMapper mapper;
-
+    
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private ErrorUtil errorUtil;
 
-//    @Cacheable(value = "media", key = "#id")
     @Override
     public MediaDTO findById(Integer id) {
         try {
-            Media file = imageRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageUtil.getMessage("error.get.media")));
-            MediaDTO test = (MediaDTO) redisTemplate.opsForValue().get(Integer.toString(id));
-            LogUtil.LOGGER.info("MediaDTO from Redis: " + test);
+            Media file = mediaRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
             return mapper.entityToDto(file);
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-//    @Cacheable(value = "media", key = "#file.id")
     @Override
     public MediaDTO create(MediaDTO file) {
         try {
-            if(file.getId() == null || imageRepository.findById(file.getId()).isEmpty()) {         
-                Media savedFile = imageRepository.save(mapper.dtoToEntity(file));
-                return mapper.entityToDto(savedFile);
-            } else {
-                throw new RuntimeException(MessageUtil.getMessage("error.create.media"));
-            }
+        	mediaRepository.findById(file.getId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
+            Media savedFile = mediaRepository.save(mapper.dtoToEntity(file));
+            return mapper.entityToDto(savedFile);
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
-//    @CachePut(value = "media", key = "#id")
-    @Override
-    public MediaDTO update(int id, MediaDTO file) {
+    
+    public MediaDTO update(Integer id, MediaDTO file) {
         try {
-            imageRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageUtil.getMessage("error.get.media")));
-            Media savedFile = imageRepository.save(mapper.dtoToEntity(file));
+        	mediaRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
+            Media savedFile = mediaRepository.save(mapper.dtoToEntity(file));
             return mapper.entityToDto(savedFile);
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-//    @CacheEvict(value = "media", key = "#id")
     @Override
-    public void delete(int id) {
+    public void delete(Integer id) {
         try {
-            imageRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageUtil.getMessage("error.get.media")));
-            imageRepository.deleteById(id);
+            mediaRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
+            mediaRepository.deleteById(id);
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

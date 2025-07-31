@@ -16,5 +16,4 @@ public class RoleDTO extends BaseDTO {
 	private Integer userId;
     private String name;
     private String description; 
-    private Boolean isDeleted;
 }

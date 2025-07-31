@@ -8,7 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.minewaku.trilog.dto.response.CloudinaryResponse;
+import com.minewaku.trilog.dto.common.response.CloudinaryResponse;
+import com.minewaku.trilog.service.ICloudinaryService;
 import com.minewaku.trilog.util.FileUploadUtil;
 import com.minewaku.trilog.util.LogUtil;
 
@@ -16,7 +17,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 
 @Service
-public class CloudinaryService {
+public class CloudinaryService implements ICloudinaryService {
 	
 	@Value("${cloudinary.cloud_name}")
     private String cloudName;
@@ -46,6 +47,7 @@ public class CloudinaryService {
     	            "secure", secure));
     }
     
+    @Override
     @Transactional
     public CloudinaryResponse uploadFile(MultipartFile file, String folder) {
         try {
@@ -66,6 +68,7 @@ public class CloudinaryService {
         }
     }
 
+    @Override
     @Transactional
     public void deleteFile(String publicId) {
         try {

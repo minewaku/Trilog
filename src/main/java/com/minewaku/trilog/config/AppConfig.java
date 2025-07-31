@@ -7,19 +7,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.facade.UploadFileFacade;
+import com.minewaku.trilog.facade.UploadPostFacade;
 import com.minewaku.trilog.repository.UserRepository;
 import com.minewaku.trilog.util.ErrorUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 @Configuration
 public class AppConfig {
@@ -31,8 +32,14 @@ public class AppConfig {
     private ErrorUtil errorUtil;
     
     @Bean
+    @Transactional
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
+        return username -> {
+            User user = userRepository.findByEmailWithRoles(username)
+                .orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
+
+            return user;
+        };
     }
 
     @Bean
@@ -67,5 +74,10 @@ public class AppConfig {
     @Bean
     public UploadFileFacade uploadFileFacade() {
         return new UploadFileFacade();
+    }
+    
+    @Bean
+    public UploadPostFacade uploadPostFacade() {
+        return new UploadPostFacade();
     }
 }

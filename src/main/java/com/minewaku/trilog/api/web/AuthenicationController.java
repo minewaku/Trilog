@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.minewaku.trilog.dto.request.AuthenicationRequest;
-import com.minewaku.trilog.dto.request.RegisterRequest;
-import com.minewaku.trilog.dto.request.SendVerifyEmailRequest;
-import com.minewaku.trilog.dto.response.AuthenicationResponse;
-import com.minewaku.trilog.dto.response.StatusResponse;
+import com.minewaku.trilog.dto.common.request.AuthenicationRequest;
+import com.minewaku.trilog.dto.common.request.RegisterRequest;
+import com.minewaku.trilog.dto.common.request.SendVerifyEmailRequest;
+import com.minewaku.trilog.dto.common.response.AuthenicationResponse;
+import com.minewaku.trilog.dto.common.response.StatusResponse;
 import com.minewaku.trilog.service.impl.AuthenicationService;
 
 @RestController

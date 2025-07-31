@@ -15,5 +15,13 @@ public class Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
+	/* LOVELY NOTE */
+	
+	//add more variant of dto like return user, save user, update user,...
+	//add checking if role is already assigned to any user before deleting
+	//check valid phone because the jakarta validation doesn't support it
+	//add view, comment counting logic
+	//improve like, view, comment counting logic
+	//
 
 }

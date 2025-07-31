@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.constant.RateLimitLevel;
 import com.minewaku.trilog.constant.RateLimitStrategy;
+import com.minewaku.trilog.service.IRateLimitService;
 import com.minewaku.trilog.util.ClientUtil;
 import com.minewaku.trilog.util.RedisUtil;
 
@@ -16,7 +17,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
-public class RateLimitService {
+public class RateLimitService implements IRateLimitService {
 
     public static final String USER_CACHE_PREFIX = "ips:";
 
@@ -26,18 +27,21 @@ public class RateLimitService {
     @Autowired
     public ProxyManager<String> lettuceBasedProxyManager;
 
+    @Override
     public Supplier<BucketConfiguration> bucketConfiguration(String limitLevel) {  
         return () -> BucketConfiguration.builder()
             .addLimit(RateLimitLevel.valueOf(limitLevel).getLimit())
             .build();
     }
 
+    @Override
     public Supplier<BucketConfiguration> bucketConfiguration(String limitStrategy, int requestLimit, int period) {
         return () -> BucketConfiguration.builder()
             .addLimit(RateLimitStrategy.valueOf(limitStrategy).getLimit(requestLimit, period))
             .build();
     }
 
+    @Override
     public Bucket redisBucket(HttpServletRequest request, String limitLevel) {
         String ipAddress = clientUtil.getClientIP(request);
         Supplier<BucketConfiguration> configurationLazySupplier = bucketConfiguration(limitLevel);
@@ -46,6 +50,7 @@ public class RateLimitService {
         return proxyManager.builder().build(RedisUtil.CACHE_PREFIX.IP_RATE_LIMIT_BUCKETS + ipAddress, configurationLazySupplier);
     }
 
+    @Override
     public Bucket redisBucket(HttpServletRequest request, String limitStrategy, int requestLimit, int period) {
         String ipAddress = clientUtil.getClientIP(request);
         Supplier<BucketConfiguration> configurationLazySupplier = bucketConfiguration(limitStrategy, requestLimit, period);
@@ -54,6 +59,7 @@ public class RateLimitService {
         return proxyManager.builder().build(RedisUtil.CACHE_PREFIX.IP_RATE_LIMIT_BUCKETS + ipAddress, configurationLazySupplier);
     }
 
+    @Override
     public Bucket redisBucket(String id, String limitLevel) {
         Supplier<BucketConfiguration> configurationLazySupplier = bucketConfiguration(limitLevel);
         ProxyManager<String> proxyManager = lettuceBasedProxyManager;
@@ -61,6 +67,7 @@ public class RateLimitService {
         return proxyManager.builder().build(id, configurationLazySupplier);
     }
 
+    @Override
     public Bucket redisBucket(String id, String limitStrategy, int requestLimit, int period) {
         Supplier<BucketConfiguration> configurationLazySupplier = bucketConfiguration(limitStrategy, requestLimit, period);
         ProxyManager<String> proxyManager = lettuceBasedProxyManager;

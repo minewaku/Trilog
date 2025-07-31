@@ -56,6 +56,13 @@ public class ErrorUtil {
 	public final String POST_PATCH_ERROR = "POST_PATCH_ERROR";
 	public final String POST_DELETE_ERROR = "POST_DELETE_ERROR";
 	
+	// Comment-related errors
+	public final String COMMENT_NOT_FOUND = "COMMENT_NOT_FOUND";
+	public final String COMMENT_GET_ERROR = "COMMENT_GET_ERROR";
+	public final String COMMENT_UPDATE_ERROR = "COMMENT_UPDATE_ERROR";
+	public final String COMMENT_PATCH_ERROR = "COMMENT_PATCH_ERROR";
+	public final String COMMENT_DELETE_ERROR = "COMMENT_DELETE_ERROR";
+	
 	//like-related errors
 	public final String LIKE_POST_NOT_FOUND = "LIKE_POST_NOT_FOUND";
 	public final String LIKE_POST_ALREADY_EXIST = "LIKE_POST_ALREADY_EXIST";
@@ -245,6 +252,32 @@ public class ErrorUtil {
         Map.entry(POST_DELETE_ERROR, new ApiException(
         	MessageUtil.getMessage("post.delete.error"),
         	POST_DELETE_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        
+        //CRUD COMMENT ERRORS
+        Map.entry(COMMENT_NOT_FOUND, new ApiException(
+            MessageUtil.getMessage("comment.not.found"),
+            COMMENT_NOT_FOUND,
+            HttpStatus.NOT_FOUND)),
+        
+        Map.entry(COMMENT_GET_ERROR, new ApiException(
+        	MessageUtil.getMessage("comment.get.error"),
+        	COMMENT_GET_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        		
+        Map.entry(COMMENT_UPDATE_ERROR, new ApiException(
+        	MessageUtil.getMessage("comment.update.error"),
+        	COMMENT_UPDATE_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        
+        Map.entry(COMMENT_PATCH_ERROR, new ApiException(
+        	MessageUtil.getMessage("comment.patch.error"),
+        	COMMENT_PATCH_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR)),
+        		
+        Map.entry(COMMENT_DELETE_ERROR, new ApiException(
+        	MessageUtil.getMessage("comment.delete.error"),
+        	COMMENT_DELETE_ERROR,
             HttpStatus.INTERNAL_SERVER_ERROR)),
         
         

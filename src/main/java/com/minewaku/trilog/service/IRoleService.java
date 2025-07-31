@@ -8,20 +8,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.minewaku.trilog.dto.RoleDTO;
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
 
 public interface IRoleService {
     Page<RoleDTO> findAll(Map<String, String> params, Pageable pageable);
-    Page<RoleDTO> search(Map<String, String> params, Pageable pageable);
     
-    void addRolesToUser(int userId, List<Integer> roleIds);
-    void removeRolesFromUser(int userId, List<Integer> roleIds);
+    void addRolesToUser(Integer userId, List<Integer> roleIds);
+    void removeRolesFromUser(Integer userId, List<Integer> roleIds);
     
-    void addPermissionsToRole(int roleId, List<Integer> permissionIds);
-    void removePermissionsFromRole(int roleId, List<Integer> permissionIds);
+    void addPermissionsToRole(Integer roleId, List<Integer> permissionIds);
+    void removePermissionsFromRole(Integer roleId, List<Integer> permissionIds);
 
-    RoleDTO findById(int id);
+    RoleDTO findById(Integer id);
     
     RoleDTO create(RoleDTO role);
-    RoleDTO update(int id, RoleDTO role);
+    RoleDTO update(Integer id, RoleDTO role);
     void delete(List<Integer> ids);
 }

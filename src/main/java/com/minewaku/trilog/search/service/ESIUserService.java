@@ -1,10 +1,9 @@
 package com.minewaku.trilog.search.service;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
 
 public interface ESIUserService {
-	List<UserDTO> suggestUsers(String input) throws IOException;
+	CursorPage<UserDTO> suggestUsers(String keyword, Cursor cursor);
 }

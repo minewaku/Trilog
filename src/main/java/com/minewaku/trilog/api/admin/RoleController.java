@@ -33,7 +33,6 @@ public class RoleController {
 	 * ALL AVAILABLE APIS
 	 * 
 	 * @summary GET /api/v1/roles - @see {@link #findAll}
-	 * @summary GET /api/v1/roles/search - @see {@link #searchByTerm}
 	 * @summary GET /api/v1/roles/{id} - @see {@link #findById}
 	 * 
 	 * @summary POST /api/v1/roles/{userId}/permissions/{permissionIds} - @see {@link #addPermissionsToRole}
@@ -52,12 +51,6 @@ public class RoleController {
     public ResponseEntity<Page<RoleDTO>> findAll(@RequestParam Map<String, String> params, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(roleService.findAll(params, pageable));
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<Page<RoleDTO>> searchByTerm(@RequestParam Map<String, String> params, Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK)
-                            .body(roleService.search(params, pageable));
     }
 
     @GetMapping("/{id}")

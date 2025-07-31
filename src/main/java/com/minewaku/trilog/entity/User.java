@@ -1,8 +1,9 @@
 package com.minewaku.trilog.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,21 +18,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -42,35 +45,37 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class User extends BaseEntity implements UserDetails, CredentialsContainer {
 	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(
-	    name = "user_role",
-	    joinColumns = @JoinColumn(name = "user_id"),
-	    inverseJoinColumns = @JoinColumn(name = "role_id")
-	)
-	private Set<Role> roles;
-
-	@Column(name = "email", unique = true)
+//	@JsonManagedReference
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+	private List<UserRole> userRoles;
+	
+	@Column(name = "email", nullable = false, unique = true)
 	@Email(message = "Invalid email")
 	@NotBlank(message = "Email is required")
+	@NotNull(message = "Email cannot be null")
 	private String email;
 	
-	@Column(name = "hashed_password")
+	@Column(name = "hashed_password", nullable = false)
 	@NotBlank(message = "Password is required")
+	@NotNull(message = "Password cannot be null")
 	private String hashed_password;
 	
-	@Column(name = "name", length = 255, unique = true)
+	@Column(name = "name", length = 255, nullable = false, unique = true)
 	@NotBlank(message = "Name is required")
+	@NotNull(message = "Name cannot be null")
 	private String name;
 	
-	@Column(name = "birthdate", nullable = true)
+	@Column(name = "bio", length = 500, nullable = true)
+	private String bio;
+	
+	@Column(name = "birthdate")
 	private LocalDate birthdate;
 
-	@Column(name = "phone", length = 20, nullable = true)
+	@Column(name = "phone", length = 20)
+//	@Phone(message = "Invalid phone number")
 	private String phone;
 	
-	//required for this field later
-	@Column(name = "address", nullable = true)
+	@Column(name = "address")
 	private String address;
 
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -85,22 +90,23 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 	//banned status would be separated into a dependent table, it will be added later. would contain banned reason, banned by, banned date, etc.
 
 	//The account is online or not
-	@Column(name = "is_active")
+	@Column(name = "is_active", nullable = false)
 	@NotNull(message = "Active is required")
 	private Boolean isActive;
 	
 	//The current account is enabled to login or not (not verified the email yet) (unable to login if false) (its previous name is is_verified and only be used for email confirmation)
-	@Column(name = "is_enabled")
+	@Column(name = "is_enabled", nullable = false)
 	@NotNull(message = "Enabled is required")
 	private Boolean isEnabled;
 	
-	//The current account is locked or not due to suspicious login attempt, banned by admin... (unable to login if true)
-	@Column(name = "is_locked")
+	//The current account is locked or not due to suspicious login attempt, banned by admin... (unable to login if true). The main purpose of this field is to prevent user to login
+	//There is another Role called BANNED would allow users to login but totally prevent them to do any action on the server
+	@Column(name = "is_locked", nullable = false)
 	@NotNull(message = "Locked is required")
 	private Boolean isLocked;
 	
-	//Soft deleted (unable to login if true)
-	@Column(name = "is_deleted")
+	//Soft deleted (unable to login if true, pretend that the account is not exist anymore)
+	@Column(name = "is_deleted", nullable = false)
 	@NotNull(message = "Deleted is required")
 	private Boolean isDeleted;
 	
@@ -109,13 +115,8 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 	protected void onCreate() {
 		super.onCreate();
 		
-		//avoiding override current value
-		if (roles == null) {			
-			roles = new HashSet<>();
-		}
-		
-		if (address == null) {
-			address = "";
+		if (userRoles == null) {
+			userRoles = new ArrayList<>();
 		}
 		
 		if (isActive == null) {
@@ -125,10 +126,23 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 		if (isEnabled == null) {
 			isEnabled = false;
 		}
-
-		isLocked = false;
-		isDeleted = false;
+		
+		if (isLocked == null) {			
+			isLocked = false;
+		}
+		
+		if( isDeleted == null) {
+			isDeleted = false;			
+		}
 	}
+	
+	public Set<Role> getRoles() {
+//	    if (userRoles == null) return Set.of();
+	    return userRoles.stream()
+	        .map(UserRole::getRole)
+	        .collect(Collectors.toSet());
+	}
+
 	
 	@Override
 	public String getUsername() {
@@ -136,9 +150,10 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 	}
 
 	@Override
+	@Transactional
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-	    return roles.stream()
-	                .map(role -> new SimpleGrantedAuthority(role.getName()))
+	    return userRoles.stream()
+	                .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().getName()))
 	                .collect(Collectors.toSet());
 	}
 
@@ -153,7 +168,7 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 		return true;
 	}
 
-	//Deprecated (Used the checking mechanism of this system instead)
+	//Deprecated (Using the checking mechanism of this system instead)
 	@Override
 	public boolean isAccountNonLocked() {
 //		return isEnabled;
@@ -174,7 +189,7 @@ public class User extends BaseEntity implements UserDetails, CredentialsContaine
 
 	@Override
 	public void eraseCredentials() {
-		this.hashed_password = null;
+//		this.hashed_password = null;
 	}
 
 }

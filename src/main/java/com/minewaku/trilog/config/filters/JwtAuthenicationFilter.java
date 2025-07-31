@@ -21,7 +21,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.minewaku.trilog.dto.response.ErrorResponse;
+import com.minewaku.trilog.dto.common.response.ErrorResponse;
 import com.minewaku.trilog.exception.ApiException;
 import com.minewaku.trilog.util.ErrorUtil;
 import com.minewaku.trilog.util.JwtUtil;

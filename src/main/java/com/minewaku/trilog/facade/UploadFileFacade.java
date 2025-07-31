@@ -3,18 +3,18 @@ package com.minewaku.trilog.facade;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.minewaku.trilog.dto.MediaDTO;
-import com.minewaku.trilog.dto.response.CloudinaryResponse;
+import com.minewaku.trilog.dto.common.response.CloudinaryResponse;
 import com.minewaku.trilog.service.impl.CloudinaryService;
 import com.minewaku.trilog.service.impl.MediaService;
 import com.minewaku.trilog.service.impl.UserService;
 import com.minewaku.trilog.util.FileUploadUtil;
 
-@Component
+@Service
 public class UploadFileFacade {
 
     @Autowired
@@ -54,23 +54,6 @@ public class UploadFileFacade {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
-    // @Transactional
-    // public MediaDTO uploadUserImage(int userId, MultipartFile file)
-    // {
-    //     try {
-    //         FileUploadUtil.assertImageAllowed(file, FileUploadUtil.IMAGE_PATTERN);
-    //         UserDTO existingUser = userService.findById(userId);
-    //         CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadFile(file, "/trilog/users/images");  
-    //         MediaDTO savedFile = mediaService.create(MediaDTO.builder()
-    //                                                     .publicId(cloudinaryResponse.getPublicId())
-    //                                                     .secureUrl(cloudinaryResponse.getSecureUrl())
-    //                                                     .build());
-    //         return userService.updateImage(existingUser.getId(), savedFile.getId());
-    //     } catch(Exception e) {
-    //         throw new RuntimeException(e.getMessage(), e);
-    //     }
-    // }
 
     @Transactional
     public MediaDTO updateUserImage(int userId, MultipartFile file)
@@ -119,23 +102,6 @@ public class UploadFileFacade {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
-    // @Transactional
-    // public MediaDTO uploadUserCover(int userId, MultipartFile file)
-    // {
-    //     try {
-    //         FileUploadUtil.assertImageAllowed(file, FileUploadUtil.IMAGE_PATTERN);
-    //         UserDTO existingUser = userService.findById(userId);
-    //         CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadFile(file, "/trilog/users/covers");  
-    //         MediaDTO savedFile = mediaService.create(MediaDTO.builder()
-    //                                                     .publicId(cloudinaryResponse.getPublicId())
-    //                                                     .secureUrl(cloudinaryResponse.getSecureUrl())
-    //                                                     .build());
-    //         return userService.updateCover(existingUser.getId(), savedFile.getId());
-    //     } catch(Exception e) {
-    //         throw new RuntimeException(e.getMessage(), e);
-    //     }
-    // }
 
     @Transactional
     public MediaDTO updateUserCover(int userId, MultipartFile file)

@@ -3,6 +3,7 @@ package com.minewaku.trilog.util;
 import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.Deflater;
@@ -25,27 +26,46 @@ public class FileUploadUtil {
         return matcher.matches();   
     }
 
+    public static void assertMediaAllowed(MultipartFile file) {
+    	 final long size = file.getSize();
+         final String fileName = file.getOriginalFilename();
+         
+		if (isAllowedExtension(fileName, IMAGE_PATTERN)) {
+			if (size > MAX_IMAGE_SIZE) {
+				throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.image") + MAX_IMAGE_SIZE / 1024 / 1024 + "MB" + ". " + fileName);
+			}
+		} else if (isAllowedExtension(fileName, VIDEO_PATTERN)) {
+			if (size > MAX_VIDEO_SIZE) {
+				throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.video") + MAX_VIDEO_SIZE / 1024 / 1024 + "MB" + ". " + fileName);
+			}
+		} else {
+			throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.type") + ". " + fileName);
+		}
+    }
+    
     public static void assertImageAllowed(MultipartFile file, String pattern) {
         final long size = file.getSize();
+        final String fileName = file.getOriginalFilename();
+        
         if(size > MAX_IMAGE_SIZE) {
-            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.image") + MAX_IMAGE_SIZE / 1024 /1024 + "MB");
+            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.image") + MAX_IMAGE_SIZE / 1024 /1024 + "MB" + ". " + fileName);
         }
 
-        final String fileName = file.getOriginalFilename();
         if (!isAllowedExtension(fileName, pattern)) {
-            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.type.image"));
+            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.type.image") + ". " + fileName);
         }
     }
 
     public static void assertVideoAllowed(MultipartFile file, String pattern) {
         final long size = file.getSize();
+        final String fileName = file.getOriginalFilename();
+        
         if(size > MAX_IMAGE_SIZE) {
-            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.video") + MAX_VIDEO_SIZE / 1024 / 1024 + "MB");
+            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.size.video") + MAX_VIDEO_SIZE / 1024 / 1024 + "MB" + ". " + fileName);
         }
 
-        final String fileName = file.getOriginalFilename();
         if (!isAllowedExtension(fileName, pattern)) {
-            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.type.video"));
+            throw new RuntimeException(MessageUtil.getMessage("cloudinary.invalid.media.type.video") + ". " + fileName);
         }
     }
 

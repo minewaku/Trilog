@@ -1,4 +1,4 @@
-package com.minewaku.trilog.dto.response;
+package com.minewaku.trilog.dto.common.response;
 
 import java.time.ZonedDateTime;
 
@@ -12,8 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 
 @Builder
-public class StatusResponse {
+public class ErrorResponse {
 	
+	private String errorCode;
     private String message;
     private ZonedDateTime timestamp;
 }
+
+

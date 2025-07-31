@@ -1,4 +1,4 @@
-package com.minewaku.trilog.dto.request;
+package com.minewaku.trilog.dto.common.request;
 
 import java.time.LocalDate;
 

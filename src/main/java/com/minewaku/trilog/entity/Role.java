@@ -1,16 +1,18 @@
 package com.minewaku.trilog.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -33,39 +35,44 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Role extends BaseEntity {
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "role_permission",
-        joinColumns = @JoinColumn(name = "role_id"),
-        inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
-    private Set<Permission> permissions;
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, orphanRemoval = true)
+	private List<RolePermission> rolePermissions;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, orphanRemoval = true)
+	private List<UserRole> userRoles;
 
-    @Column(name = "name", length = 255, unique = true)
+    @Column(name = "name", length = 255, nullable = false, unique = true)
     @NotBlank(message = "Name is required")
+    @NotNull(message = "Name cannot be null")
     private String name;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description", length = 255, nullable = false)
     @NotBlank(message = "Description is required")
+    @NotNull(message = "Description cannot be null")
     private String description;
-
-    @Column(name = "is_deleted")
-    @NotNull(message = "isDeleted is required")
-    private Boolean isDeleted;
     
     @PrePersist
 	protected void onCreate() {
     	super.onCreate();
-    	permissions = new HashSet<>();
-		isDeleted = false;
+    	
+    	if (rolePermissions == null) {
+    		rolePermissions = new ArrayList<>();
+    	}
+    	
+    	if (userRoles == null) {
+			userRoles = new ArrayList<>();
+    	}
 	}
 
     public Set<SimpleGrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        for (Permission permission : permissions) {
-            authorities.add(new SimpleGrantedAuthority(permission.getName()));
+        for (RolePermission permissionRole : rolePermissions) {
+            authorities.add(new SimpleGrantedAuthority(permissionRole.getPermission().getName()));
         }
-        authorities.add(new SimpleGrantedAuthority("ROLE" + this.name));
+        
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name));
         return authorities;
     }
 

@@ -9,24 +9,24 @@ import org.springframework.data.domain.Pageable;
 import com.minewaku.trilog.dto.MediaDTO;
 import com.minewaku.trilog.dto.RoleDTO;
 import com.minewaku.trilog.dto.UserDTO;
-import com.minewaku.trilog.dto.request.RegisterRequest;
-import com.minewaku.trilog.dto.response.StatusResponse;
+import com.minewaku.trilog.dto.common.request.RegisterRequest;
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
 
 public interface IUserService {
-    Page<UserDTO> findAll(Pageable pageable, Map<String, String> params);
-    Page<UserDTO> search(Map<String, String> params, Pageable pageable);
     
-    UserDTO findById(int id);
-    List<RoleDTO> getRolesByUserId(int id);
+    UserDTO findById(Integer id);
+    Page<UserDTO> findAll(Map<String, String> params, Pageable pageable);
     
-    MediaDTO getImage(int id);
-    MediaDTO getCover(int id);
+    List<RoleDTO> getRolesByUserId(Integer id);
+    
+    MediaDTO getImage(Integer id);
+    MediaDTO getCover(Integer id);
 
-    MediaDTO updateImage(int userId, int imageId);
-    MediaDTO updateCover(int userId, int coverId);
+    MediaDTO updateImage(Integer userId, Integer imageId);
+    MediaDTO updateCover(Integer userId, Integer coverId);
     
     UserDTO create(RegisterRequest user);
-    UserDTO update(int userId, UserDTO user);
-    UserDTO patch(int userId, UserDTO user);
+    UserDTO update(Integer userId, UserDTO user);
     void delete(List<Integer> ids);
 }

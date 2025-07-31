@@ -114,7 +114,6 @@
 		</dependency>
 
 
-
 		<!-- 
 			*** JSON RELATED PACKAGES ***
 		-->
@@ -203,6 +202,18 @@
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-core -->
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-core</artifactId>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-mysql -->
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-mysql</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->

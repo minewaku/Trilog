@@ -1,5 +1,4 @@
-package com.minewaku.trilog.dto.response;
-
+package com.minewaku.trilog.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 @Builder
-public class CloudinaryResponse {
-
-    private String publicId;
-
-    private String secureUrl;
+public class UserRoleDTO {
+	private Integer userId;
+	private Integer roleId;
+	private String roleName;
+	private String userName;
+	
 }

@@ -1,0 +1,33 @@
+PS D:\Documents\Docker\docker-compose> docker ps -a
+CONTAINER ID   IMAGE                                                  COMMAND                  CREATED       STATUS                      PORTS     NAMES
+67ffe363bd60   docker.n8n.io/n8nio/n8n                                "tini -- /docker-ent…"   5 weeks ago   Exited (0) 38 minutes ago             n8n
+7edc89e9ab24   confluentinc/cp-kafka:7.6.0                            "/etc/confluent/dock…"   7 weeks ago   Exited (143) 2 weeks ago              kafka-trilog
+aa1e7a3f7a6e   docker.elastic.co/logstash/logstash:8.13.0             "/usr/local/bin/dock…"   7 weeks ago   Exited (0) 2 weeks ago                logstash-trilog
+4441d1ac3c0d   docker.elastic.co/kibana/kibana:8.13.0                 "/bin/tini -- /usr/l…"   7 weeks ago   Exited (0) 2 weeks ago                kibana-trilog
+7877af2760c8   phpmyadmin/phpmyadmin                                  "/docker-entrypoint.…"   7 weeks ago   Exited (0) 2 weeks ago                phpmyadmin-trilog
+4bf532fca617   redis:7.2                                              "docker-entrypoint.s…"   7 weeks ago   Exited (0) 2 weeks ago                redis-trilog
+8fca181226e0   docker.elastic.co/elasticsearch/elasticsearch:8.13.0   "/bin/tini -- /usr/l…"   7 weeks ago   Exited (143) 2 weeks ago              elasticsearch-trilog
+c678a06a51de   confluentinc/cp-zookeeper:7.6.0                        "/etc/confluent/dock…"   7 weeks ago   Exited (143) 2 weeks ago              zookeeper-trilog
+71ae3b26b865   mysql:8.0                                              "docker-entrypoint.s…"   7 weeks ago   Exited (0) 2 weeks ago                mysql-trilog
+PS D:\Documents\Docker\docker-compose> docker volume rm 8bea4a8ebb08cd88af8fda3e8d537e63f757c9b18b09cb6df2c12ab02b461dbb
+Error response from daemon: remove 8bea4a8ebb08cd88af8fda3e8d537e63f757c9b18b09cb6df2c12ab02b461dbb: volume is in use - [c678a06a51de8bb1f95231ae1ea7191e26f1bc5ef9553d6c0917b95fad979ac5]
+PS D:\Documents\Docker\docker-compose> docker volume ls
+DRIVER    VOLUME NAME
+local     8bea4a8ebb08cd88af8fda3e8d537e63f757c9b18b09cb6df2c12ab02b461dbb
+local     13b7972320fb1eb775f65f8e928f363253a669a10b0f114175fbe906e465fa4e
+local     33ef92bbc4eda645f5336f5317d018241c5a2b4bec75acb7401bec6e613092c5
+local     385cef8532180a54f03ac434228912ec1c11665d2a18a6389481f7ae294ebf63
+local     bcdf016c9dd5cc23d3a0a33e03729f163b07978e73155b06d449e8855773cc83
+local     dockercompose874198897760813674_exampledb_data
+local     n8n_data
+local     trilog_mysql_data
+local     trilog_redis_data
+local     trilog_zookeeper_data
+PS D:\Documents\Docker\docker-compose> docker volume rm 13b7972320fb1eb775f65f8e928f363253a669a10b0f114175fbe906e465fa4e
+Error response from daemon: remove 13b7972320fb1eb775f65f8e928f363253a669a10b0f114175fbe906e465fa4e: volume is in use - [c678a06a51de8bb1f95231ae1ea7191e26f1bc5ef9553d6c0917b95fad979ac5]
+PS D:\Documents\Docker\docker-compose> docker volume rm 33ef92bbc4eda645f5336f5317d018241c5a2b4bec75acb7401bec6e613092c5
+Error response from daemon: remove 33ef92bbc4eda645f5336f5317d018241c5a2b4bec75acb7401bec6e613092c5: volume is in use - [c678a06a51de8bb1f95231ae1ea7191e26f1bc5ef9553d6c0917b95fad979ac5]
+PS D:\Documents\Docker\docker-compose> docker volume rm 385cef8532180a54f03ac434228912ec1c11665d2a18a6389481f7ae294ebf63
+Error response from daemon: remove 385cef8532180a54f03ac434228912ec1c11665d2a18a6389481f7ae294ebf63: volume is in use - [7edc89e9ab24235f2440eaf88912877586e25f46e0e8ca9c9c810bee486547bd]
+PS D:\Documents\Docker\docker-compose> docker volume rm bcdf016c9dd5cc23d3a0a33e03729f163b07978e73155b06d449e8855773cc83
+Error response from daemon: remove bcdf016c9dd5cc23d3a0a33e03729f163b07978e73155b06d449e8855773cc83: volume is in use - [7edc89e9ab24235f2440eaf88912877586e25f46e0e8ca9c9c810bee486547bd]

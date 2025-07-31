@@ -48,21 +48,22 @@ public class LikeService implements ILikeService {
 	@Autowired
 	private LikeMapper likeMapper;
 	
-	public Page<LikeDTO> findAll(Pageable pageable, Map<String, String> params) {
+	@Override
+	public Page<LikeDTO> findAll(Map<String, String> params, Pageable pageable) {
 		return likeRepository.findAll(pageable).map(likeMapper::entityToDto);
 	}
 	
+	@Override
 	public List<Like> saveAll(List<Like> entities) {
-		LogUtil.LOGGER.info("migrated post likes: " + entities.stream().map(Object::toString).collect(Collectors.joining(", ")));
 		return likeRepository.saveAll(entities);
 	}
 	
+	@Override
 	public void deleteAll(List<LikeId> ids) {
-		LogUtil.LOGGER.info("migrated post likes: " + ids.stream().map(Object::toString).collect(Collectors.joining(", ")));
 		likeRepository.deleteAllById(ids);
 	}
 	
-	
+	@Override
 	public void cachedLikePost(Integer postId) {
 		User userDetails = (User) SecurityUtil.getPrincipal(); 
 		
@@ -86,7 +87,7 @@ public class LikeService implements ILikeService {
 			try {
 				Integer likes = (Integer) redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString());
 				if(likes == null) {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikes());
+					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikeCount());
 				} else {
 					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), likes + 1);
 				}
@@ -100,6 +101,7 @@ public class LikeService implements ILikeService {
 		}
 	}
 	
+	@Override
 	public void uncachedLikePost(Integer postId) {
 		User userDetails = (User) SecurityUtil.getPrincipal();  
 		
@@ -123,7 +125,7 @@ public class LikeService implements ILikeService {
 			try {
 				Integer likes = (Integer) redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString());
 				if(likes == null) {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikes());
+					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikeCount());
 				} else {
 					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), likes - 1);
 				}

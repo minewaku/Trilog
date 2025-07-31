@@ -14,11 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.minewaku.trilog.dto.MediaDTO;
 import com.minewaku.trilog.service.impl.MediaService;
-import com.minewaku.trilog.service.impl.RateLimitService;
-import com.minewaku.trilog.util.LogUtil;
 
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -41,22 +37,10 @@ public class MediaController {
     @Autowired
     private MediaService mediaService;
 
-    @Autowired
-    private RateLimitService rateLimitService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<MediaDTO> findById(HttpServletRequest request, @PathVariable int id) {
-        Bucket bucket = rateLimitService.redisBucket(request, "RATE_LIMIT_IN_MINUTES", 1000, 1);
-        LogUtil.LOGGER.info("Remain Tokens hehee: " + bucket.getAvailableTokens());
-        
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-        if(probe.isConsumed()){
-            return ResponseEntity.status(HttpStatus.OK)
-                                .body(mediaService.findById(id));
-        }
-
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                            .build();
+    public ResponseEntity<MediaDTO> findById(HttpServletRequest request, @PathVariable Integer id) {
+    	return ResponseEntity.status(HttpStatus.OK).body(mediaService.findById(id));
     }
 
     @PostMapping("/")
@@ -66,13 +50,13 @@ public class MediaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MediaDTO> update(@PathVariable int id, @RequestBody MediaDTO file) {
+    public ResponseEntity<MediaDTO> update(@PathVariable Integer id, @RequestBody MediaDTO file) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(mediaService.update(id, file));
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         mediaService.delete(id);
         return ResponseEntity.status(HttpStatus.OK)
                             .build();

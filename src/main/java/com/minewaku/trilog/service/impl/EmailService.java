@@ -7,13 +7,14 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.minewaku.trilog.service.IEmailService;
 import com.minewaku.trilog.util.ErrorUtil;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
-public class EmailService {
+public class EmailService implements IEmailService {
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -24,6 +25,7 @@ public class EmailService {
 	@Autowired
 	private ErrorUtil errorUtil;
 
+	@Override
 	public void sendEmail(String to, String subject, String templateName, Context context) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();

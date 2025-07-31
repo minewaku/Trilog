@@ -15,24 +15,21 @@ import org.springframework.stereotype.Service;
 import com.minewaku.trilog.dto.MediaDTO;
 import com.minewaku.trilog.dto.RoleDTO;
 import com.minewaku.trilog.dto.UserDTO;
-import com.minewaku.trilog.dto.request.RegisterRequest;
+import com.minewaku.trilog.dto.common.request.RegisterRequest;
 import com.minewaku.trilog.entity.Media;
-import com.minewaku.trilog.entity.Role;
 import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.entity.User_;
 import com.minewaku.trilog.mapper.MediaMapper;
 import com.minewaku.trilog.mapper.RoleMapper;
 import com.minewaku.trilog.mapper.UserMapper;
 import com.minewaku.trilog.repository.MediaRepository;
-import com.minewaku.trilog.repository.RoleRepository;
 import com.minewaku.trilog.repository.UserRepository;
+import com.minewaku.trilog.service.IUserRoleService;
 import com.minewaku.trilog.service.IUserService;
 import com.minewaku.trilog.specification.SpecificationBuilder;
 import com.minewaku.trilog.util.ErrorUtil;
-import com.minewaku.trilog.util.MessageUtil;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.metamodel.SingularAttribute;
 
 @Service
@@ -40,12 +37,12 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserRepository userRepository;
-
-	@Autowired
-	private RoleRepository roleRepository;
     
     @Autowired
     private MediaRepository mediaRepository;
+    
+    @Autowired
+    private IUserRoleService userRoleService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -54,7 +51,7 @@ public class UserService implements IUserService {
     private UserMapper userMapper;
     
     @Autowired
-    private RoleMapper mapper;
+    private RoleMapper roleMapper;
 
     @Autowired
     private MediaMapper mediaMapper;
@@ -66,20 +63,18 @@ public class UserService implements IUserService {
     private ErrorUtil errorUtil;
     
     private Set<SingularAttribute<User, ?> > allowedFieldsForFetch = new HashSet<>();
-    private Set<SingularAttribute<User, ?> > allowedFieldsForSearch = new HashSet<>();
 
     @PostConstruct
     public void init() {
         allowedFieldsForFetch.add(User_.name);
         allowedFieldsForFetch.add(User_.email);
-        allowedFieldsForFetch.add(User_.birthdate);
         @SuppressWarnings("unchecked")
         SingularAttribute<User, ?> createdDate = (SingularAttribute<User, ?>) (SingularAttribute<?, ?>) User_.createdDate;
         allowedFieldsForFetch.add(createdDate);
     }
     
     @Override
-    public Page<UserDTO> findAll(Pageable pageable, Map<String, String> params) {
+    public Page<UserDTO> findAll(Map<String, String> params, Pageable pageable) {
         try {
         	Specification<User> spec = specBuilder.buildSpecification(params, allowedFieldsForFetch);
             Page<User> users = userRepository.findAll(spec, pageable);
@@ -87,32 +82,17 @@ public class UserService implements IUserService {
             return userDTOs;
 
         } catch(IllegalArgumentException e) {
-            throw new IllegalArgumentException(MessageUtil.getMessage("invalid.parameters"), e);
+            throw errorUtil.ERROR_DETAILS.get(errorUtil.INVALID_PARAMETERS);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    @Override
-    public Page<UserDTO> search(Map<String, String> params, Pageable pageable) {
-        try {
-//        	Specification<User> spec = specBuilder.buildSpecification(params);
-            Page<User> users = userRepository.findAll(pageable);
-            return users.map(user -> userMapper.entityToDto(user));
-
-        } catch(IllegalArgumentException e) {
-            throw new IllegalArgumentException(MessageUtil.getMessage("invalid.params.search"), e);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @Override
 //    @PreAuthorize("hasRole('ADMIN')")
-    public UserDTO findById(int id) {
-    	
+    @Override
+    public UserDTO findById(Integer id) {
         try {
-            User user = userRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
+            User user = userRepository.findByIdWithRoles(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
             return userMapper.entityToDto(user);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -120,12 +100,12 @@ public class UserService implements IUserService {
     }
     
     @Override
-	public List<RoleDTO> getRolesByUserId(int userId) {
+	public List<RoleDTO> getRolesByUserId(Integer userId) {
 		try {
-            return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.user")))
-            		.getRoles()
+            return userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND))
+            		.getUserRoles()
             		.stream()
-            		.map(role -> mapper.entityToDto(role))
+            		.map(userRole -> roleMapper.entityToDto(userRole.getRole()))
             		.toList();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -133,32 +113,38 @@ public class UserService implements IUserService {
 	}
 
 
-
     @Override
     public UserDTO create(RegisterRequest request) {
         try {
-        	userRepository.findByEmail(request.getEmail()).ifPresent(s -> {
+        	// Validating if the email already exists
+    		userRepository.findByEmail(request.getEmail()).ifPresent(s -> {
     			throw errorUtil.ERROR_DETAILS.get(errorUtil.EMAIL_ALREADY_EXISTS);
     		});
 
-    		Role userRole = roleRepository.findByName("USER").orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND));
-
-    		// Create the roles list
-    		Set<Role> defaultRoles = new HashSet<>();
-    		defaultRoles.add(userRole);
-
-    		// Create and save the user with explicit field setting
-    		User user = User.builder().email(request.getEmail()).roles(defaultRoles).name(request.getName()).hashed_password(passwordEncoder.encode(request.getPassword())).birthdate(request.getBirthdate()).phone(request.getPhone()).address(request.getAddress()).isActive(true).isEnabled(true).isLocked(false)
-    				.isDeleted(false).build();
+    		// Creating and saving the user with explicit field settings
+    		User user = User.builder().email(request.getEmail())
+    				.name(request.getName())
+    				.hashed_password(passwordEncoder.encode(request.getPassword()))
+    				.birthdate(request.getBirthdate()).phone(request.getPhone())
+    				.address(request.getAddress()).isActive(true).isEnabled(false)
+    				.isLocked(false)
+    				.isDeleted(false)
+    				.build();
     		user = userRepository.save(user);
-            return userMapper.entityToDto(user);
+    		
+    		// Creating default Role for the user
+    		userRoleService.createDefaultUserRole(user.getId());
+    		
+    		User savedUser = userRepository.findById(user.getId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
+    		
+            return userMapper.entityToDto(savedUser);
         } catch (Exception e) {
         	throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public UserDTO update(int id, UserDTO user) {
+    public UserDTO update(Integer id, UserDTO user) {
         try {
             userRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
             User savedUser = userRepository.save(userMapper.dtoToEntity(user)); 
@@ -169,18 +155,6 @@ public class UserService implements IUserService {
     }
     
     @Override
-    public UserDTO patch(int id, UserDTO user) {
-        try {
-            User existingUser = userRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 	
-            userMapper.update(existingUser, user);
-            User savedUser = userRepository.save(existingUser);
-            return userMapper.entityToDto(savedUser);
-        } catch (Exception e) {
-        	throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public void delete(List<Integer> ids) {
         try {
             userRepository.softDeleteUsers(ids); 
@@ -189,10 +163,8 @@ public class UserService implements IUserService {
         }
     }
 
-//    @Cacheable(value = "media", keyGenerator = "customKeyGenerator")
-//    @Cacheable(value = "media")
     @Override
-    public MediaDTO getImage(int userId) {
+    public MediaDTO getImage(Integer userId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
             return mediaMapper.entityToDto(user.getImage());
@@ -201,10 +173,9 @@ public class UserService implements IUserService {
         }
     }
 
-//    @Cacheable(value = "media", keyGenerator = "customKeyGenerator")
-//    @Cacheable(value = "media")
+
     @Override
-    public MediaDTO getCover(int userId) {
+    public MediaDTO getCover(Integer userId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
             return mediaMapper.entityToDto(user.getCover());
@@ -213,13 +184,12 @@ public class UserService implements IUserService {
         }
     }
 
-//    @CachePut(value = "media", keyGenerator = "customKeyGenerator")
-//    @CachePut(value = "media")
+    
     @Override
-    public MediaDTO updateImage(int userId, int imageId) {
+    public MediaDTO updateImage(Integer userId, Integer imageId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
-            Media image = mediaRepository.findById(imageId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.media")));
+            Media image = mediaRepository.findById(imageId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
             user.setImage(image);
             User savedUser = userRepository.save(user);
             return savedUser.getImage() != null ? mediaMapper.entityToDto(savedUser.getImage()) : null;
@@ -228,13 +198,12 @@ public class UserService implements IUserService {
         }
     }
 
-//    @CachePut(value = "media", keyGenerator = "customKeyGenerator")
-//    @CachePut(value = "media")
+
     @Override
-    public MediaDTO updateCover(int userId, int coverId) {
+    public MediaDTO updateCover(Integer userId, Integer coverId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
-            Media image = mediaRepository.findById(coverId).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.media")));
+            Media image = mediaRepository.findById(coverId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
             user.setCover(image);
             User savedUser = userRepository.save(user);
             return savedUser.getCover() != null ? mediaMapper.entityToDto(savedUser.getCover()) : null;

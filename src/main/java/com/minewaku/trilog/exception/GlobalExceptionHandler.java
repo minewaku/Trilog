@@ -13,7 +13,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.minewaku.trilog.dto.response.ErrorResponse;
+import com.minewaku.trilog.dto.common.response.ErrorResponse;
 import com.minewaku.trilog.util.ErrorUtil;
 import com.minewaku.trilog.util.MessageUtil;
 

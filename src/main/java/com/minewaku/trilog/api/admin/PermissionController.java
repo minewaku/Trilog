@@ -33,7 +33,6 @@ public class PermissionController {
 	 * ALL AVAILABLE APIS
 	 * 
 	 * @summary GET /api/v1/permissisons - @see {@link #findAll}
-	 * @summary GET /api/v1/permissisons/search - @see {@link #search}
 	 * @summary GET /api/v1/permissisons/{id} - @see {@link #findById}
 	 * 
 	 * @summary POST /api/v1/permissisons - @see {@link #create}
@@ -51,13 +50,6 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(permissions); 
     }
-
-    @GetMapping("/search")
-    public ResponseEntity<Page<PermissionDTO>> search(@RequestParam Map<String, String> params, Pageable pageable) {
-            Page<PermissionDTO> permissions = permissionService.search(params, pageable);
-            return ResponseEntity.status(HttpStatus.OK)
-                                .body(permissions);
-    }   
 
     @GetMapping("/{id}")
     public ResponseEntity<PermissionDTO> findById(@PathVariable int id) {

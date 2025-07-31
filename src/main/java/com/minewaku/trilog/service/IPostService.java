@@ -1,12 +1,28 @@
 package com.minewaku.trilog.service;
 
 import java.util.List;
+import java.util.Map;
 
-import com.minewaku.trilog.dto.PostDTO;
-import com.minewaku.trilog.dto.response.StatusResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.Comment.CommentDTO;
+import com.minewaku.trilog.dto.Comment.SavedCommentDTO;
+import com.minewaku.trilog.dto.Post.PostDTO;
+import com.minewaku.trilog.dto.common.response.StatusResponse;
 
 public interface IPostService {
+	 PostDTO findById(int id);
+	 Page<PostDTO> findAll(Map<String, String> params, Pageable pageable);
+	 
 	 PostDTO create(PostDTO post);
-	 public PostDTO update(int id, PostDTO Post);
-	 public StatusResponse delete(List<Integer> ids);
+	 PostDTO update(int id, PostDTO Post);
+	 void delete(List<Integer> ids);
+	 
+	 StatusResponse addMedia(Integer id, List<MultipartFile> files);
+	 StatusResponse deleteMedia(Integer postId, List<Integer> mediaIds);
+	 
+	 CommentDTO addComment(Integer id, SavedCommentDTO savedCommentDTO);
 }

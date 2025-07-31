@@ -6,13 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.minewaku.trilog.dto.PostDTO;
+import com.minewaku.trilog.dto.Post.PostDTO;
+import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
-import com.minewaku.trilog.dto.response.CursorPage;
 import com.minewaku.trilog.entity.Post;
 import com.minewaku.trilog.mapper.PostMapper;
 import com.minewaku.trilog.repository.PostRepository;
-import com.minewaku.trilog.search.document.ESPost;
 import com.minewaku.trilog.search.repository.custom.ESPostRepositoryCustom;
 import com.minewaku.trilog.search.service.ESIPostService;
 
@@ -65,22 +64,22 @@ public class ESPostService implements ESIPostService {
 		}
 	}
 
-//	@Override
-//	public CursorPage<PostDTO> findByUsername(String username, Cursor cursor) {
-//		try {
-//			CursorPage<Integer> esResult = postRepositoryCustom.findByUsernameKeywordOrderByCreatedDateDesc(username, cursor);
-//			List<Post> result = postRepository.findAllById(esResult.getRecords());
-//			
-//			return CursorPage.<PostDTO>builder()
-//					.after(esResult.getAfter())
-//					.before(esResult.getBefore())
-//					.limit(esResult.getLimit())
-//					.total(result.size())
-//					.records(result.stream().map(postMapper::entityToDto).toList())
-//					.build();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
+	@Override
+	public CursorPage<PostDTO> findByUserId(Integer userId, Cursor cursor) {
+		try {
+			CursorPage<Integer> esResult = postRepositoryCustom.findByUserIdOrderByCreatedDateDesc(userId, cursor);
+			List<Post> result = postRepository.findAllById(esResult.getRecords());
+			
+			return CursorPage.<PostDTO>builder()
+					.after(esResult.getAfter())
+					.before(esResult.getBefore())
+					.limit(esResult.getLimit())
+					.total(result.size())
+					.records(result.stream().map(postMapper::entityToDto).toList())
+					.build();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

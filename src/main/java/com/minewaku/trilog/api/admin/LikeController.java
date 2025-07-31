@@ -34,7 +34,7 @@ public class LikeController {
 	
 	@GetMapping("")
 	public ResponseEntity<Page<LikeDTO>> findAll(@RequestParam Map<String, String> params, Pageable pageable) {
-		return ResponseEntity.status(HttpStatus.OK).body(likeService.findAll(pageable, params));
+		return ResponseEntity.status(HttpStatus.OK).body(likeService.findAll(params, pageable));
 	}
 	
 }

@@ -13,7 +13,6 @@ public interface RoleMapper {
     @InheritConfiguration
     RoleDTO entityToDto(Role entity);
 
-    @Mapping(target = "permissions", ignore = true)
     Role dtoToEntity(RoleDTO dto);
     
 }

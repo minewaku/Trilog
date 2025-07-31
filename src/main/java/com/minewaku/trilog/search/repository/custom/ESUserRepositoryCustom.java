@@ -1,11 +1,10 @@
 package com.minewaku.trilog.search.repository.custom;
 
-import java.util.List;
-
-import com.minewaku.trilog.search.document.ESUser;
-
 import java.io.IOException;
 
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
+
 public interface ESUserRepositoryCustom {
-	List<Integer> suggestUsers(String input) throws IOException;
+	CursorPage<Integer> suggestUsers(String keywrord, Cursor cursor) throws IOException;
 }

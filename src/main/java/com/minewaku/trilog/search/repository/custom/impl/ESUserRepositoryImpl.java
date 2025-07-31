@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.minewaku.trilog.search.document.ESUser;
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
+import com.minewaku.trilog.search.repository.custom.CursorPageBuilder;
 import com.minewaku.trilog.search.repository.custom.ESUserRepositoryCustom;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -15,13 +17,13 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 
-public class ESUserRepositoryImpl implements ESUserRepositoryCustom {
+public class ESUserRepositoryImpl implements ESUserRepositoryCustom, CursorPageBuilder {
 	
     @Autowired
     private ElasticsearchClient elasticsearchClient;
 
 	@Override
-	public List<Integer> suggestUsers(String input) throws IOException {
+	public CursorPage<Integer> suggestUsers(String keyword, Cursor cursor) throws IOException {
 		
 		var searchBuilder = new SearchRequest.Builder()
 			.index("user")
@@ -29,7 +31,7 @@ public class ESUserRepositoryImpl implements ESUserRepositoryCustom {
 			.query(q -> q
 				.match(m -> m
 				  .field("username.prefix")
-				  .query(input)
+				  .query(keyword)
 				)
 			)
 	        .source(src -> src
@@ -41,10 +43,11 @@ public class ESUserRepositoryImpl implements ESUserRepositoryCustom {
 		SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
 
 		List<Integer> list = response.hits().hits().stream()
-            .map(Hit::source)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-		
-		return list;
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+			
+        return CursorPageBuilder.buildCursorResponse(list, cursor);
 	}
 }

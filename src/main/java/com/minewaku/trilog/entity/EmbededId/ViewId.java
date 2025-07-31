@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ViewId implements Serializable {
+	
     @Column(name = "user_id")
     private Integer userId;
 

@@ -28,5 +28,7 @@ public class ESUser {
             @InnerField(suffix = "keyword", type = FieldType.Keyword)
         }
     )
-	private String username;  
+	private String name;
+	
+		
 }

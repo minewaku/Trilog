@@ -38,7 +38,6 @@ public class UserDTO extends BaseDTO {
     private boolean isLocked;
     
     private boolean isDeleted;
-    
    
     private List<String> roles;
 }

@@ -1,14 +1,18 @@
 package com.minewaku.trilog.entity;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,26 +22,32 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 
 @Entity
-@Table(name = "media")
-@SuperBuilder
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Media {
+	
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
-
-    @Column(name = "public_id", unique = true)
+    @Column(name = "public_id", nullable = false, unique = true, updatable = false)
     @NotBlank(message = "publicId is required")
     private String publicId;
 
-    @Column(name = "secure_url", unique = true)
+    @Column(name = "secure_url", nullable = false, unique = true, updatable = false)
     @NotBlank(message = "secureUrl is required")
     private String secureUrl;
+    
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdDate = ZonedDateTime.now(ZoneId.of("Z")).toLocalDateTime();
+    }
+    
 }
 

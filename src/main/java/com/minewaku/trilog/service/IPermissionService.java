@@ -8,13 +8,12 @@ import org.springframework.data.domain.Pageable;
 
 import com.minewaku.trilog.dto.PermissionDTO;
 
-public interface IPermissionService {
+public  interface IPermissionService {
     Page<PermissionDTO> findAll(Map<String, String> params, Pageable pageable);
-    Page<PermissionDTO> search(Map<String, String> params, Pageable pageable);
 
-    PermissionDTO findById(int id);
+    PermissionDTO findById(Integer id);
     PermissionDTO create(PermissionDTO Permission);
-    PermissionDTO update(int id, PermissionDTO Permission);
+    PermissionDTO update(Integer id, PermissionDTO Permission);
     void delete(List<Integer> ids);
 
     PermissionDTO findByName(String name);

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.common.response.CursorPage;
+import com.minewaku.trilog.dto.model.Cursor;
 import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.mapper.UserMapper;
 import com.minewaku.trilog.repository.UserRepository;
@@ -26,12 +28,17 @@ public class ESUserService implements ESIUserService {
 	private UserMapper userMapper;
 	
 	
-	public List<UserDTO> suggestUsers(String input) {
+	public CursorPage<UserDTO> suggestUsers(String keyword, Cursor cursor) {
 		try {
-			List<Integer> esResult =  esUserRepositoryCustom.suggestUsers(input);
-			List<User> result = userRepository.findAllById(esResult);
+			CursorPage<Integer> esResult =  esUserRepositoryCustom.suggestUsers(keyword, cursor);
+			List<User> result = userRepository.findAllById(esResult.getRecords());
 			
-			return result.stream().map(userMapper::entityToDto).toList();
+			return CursorPage.<UserDTO>builder().
+					after(esResult.getAfter())
+					.before(esResult.getBefore())
+					.limit(esResult.getLimit()).total(result.size())
+					.records(result.stream().map(userMapper::entityToDto).toList())
+					.build();
         } catch (IOException e) {
             e.printStackTrace();
             return null;

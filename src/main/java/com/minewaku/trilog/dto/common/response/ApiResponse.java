@@ -1,4 +1,4 @@
-package com.minewaku.trilog.dto.response;
+package com.minewaku.trilog.dto.common.response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -8,6 +8,7 @@
 *.log
 logs/
 *.out
+sql/
 
 # Spring Boot devtools restart folder
 .spring-boot-devtools.properties
@@ -27,6 +28,7 @@ buildNumber.properties
 # Gradle (nếu dùng Gradle)
 .gradle/
 build/
+
 
 # IDEs
 .idea/

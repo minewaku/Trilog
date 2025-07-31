@@ -1,4 +1,7 @@
-package com.minewaku.trilog.dto;
+package com.minewaku.trilog.dto.Post;
+
+import com.minewaku.trilog.dto.BaseDTO;
+import com.minewaku.trilog.dto.Media.MediaPostDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,11 +19,12 @@ public class PostDTO extends BaseDTO {
 
 	private Integer userId;
 	private String username;
+	private MediaPostDTO[] thumbnails;
     private String content;
     private Integer status;
-    private Integer likes;
-    private Integer views;
-    private Integer comments;
+    private Integer likeCount;
+    private Integer viewCount;
+    private Integer commentCount;
     private Double lat;
     private Double lon;
 }
