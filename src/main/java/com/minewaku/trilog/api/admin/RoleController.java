@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.minewaku.trilog.dto.RoleDTO;
+import com.minewaku.trilog.dto.Role.RoleDTO;
+import com.minewaku.trilog.dto.Role.UpdatedRoleDTO;
 import com.minewaku.trilog.service.impl.RoleService;
 import com.minewaku.trilog.util.DataPreprocessingUtil;
 
@@ -60,14 +61,14 @@ public class RoleController {
     }
     
     @PostMapping("/{roleId}/permissions/{permissionIds}")
-	public ResponseEntity<Void> addPermissionsToRole(@PathVariable int roleId, @RequestBody String permissionIds) {
+	public ResponseEntity<Void> addPermissionsToRole(@PathVariable int roleId, @PathVariable String permissionIds) {
     	List<Integer> permisisonIdList = DataPreprocessingUtil.parseCommaSeparatedIds(permissionIds);
     	roleService.addPermissionsToRole(roleId, permisisonIdList);
     	return ResponseEntity.status(HttpStatus.OK).build();
 	}
     
     @DeleteMapping("/{roleId}/permissions/{permissionIds}")
-    public ResponseEntity<Void> removePermissionsFromRole(@PathVariable int roleId, @RequestBody String permissionIds) {
+    public ResponseEntity<Void> removePermissionsFromRole(@PathVariable int roleId, @PathVariable String permissionIds) {
     	List<Integer> permisisonIdList = DataPreprocessingUtil.parseCommaSeparatedIds(permissionIds);
     	roleService.removePermissionsFromRole(roleId, permisisonIdList);
     	return ResponseEntity.status(HttpStatus.OK).build();
@@ -80,7 +81,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoleDTO> update(@PathVariable int id, @RequestBody RoleDTO role) {
+    public ResponseEntity<RoleDTO> update(@PathVariable int id, @RequestBody UpdatedRoleDTO role) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(roleService.update(id, role));
     }

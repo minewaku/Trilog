@@ -1,20 +1,17 @@
 package com.minewaku.trilog.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.MediaDTO;
+import com.minewaku.trilog.dto.Media.SavedMediaDTO;
 import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.mapper.MediaMapper;
 import com.minewaku.trilog.repository.MediaRepository;
 import com.minewaku.trilog.service.IMediaService;
+import com.minewaku.trilog.service.forServices.IInternalMediaService;
 import com.minewaku.trilog.util.ErrorUtil;
 import com.minewaku.trilog.util.LogUtil;
-import com.minewaku.trilog.util.MessageUtil;
 
 @Service
 public class MediaService implements IMediaService {
@@ -39,10 +36,14 @@ public class MediaService implements IMediaService {
     }
 
     @Override
-    public MediaDTO create(MediaDTO file) {
+    public MediaDTO create(SavedMediaDTO file) {
         try {
-        	mediaRepository.findById(file.getId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.MEDIA_NOT_FOUND));
-            Media savedFile = mediaRepository.save(mapper.dtoToEntity(file));
+//        	LogUtil.LOGGER.info(file.toString());
+        	Media test = mapper.savedMediaDtoToEntity(file);
+//        	LogUtil.LOGGER.info(test.toString());
+//        	LogUtil.LOGGER.info(test.getPublicId().length());
+//        	LogUtil.LOGGER.info(test.getSecureUrl().length());
+            Media savedFile = mediaRepository.save(test);
             return mapper.entityToDto(savedFile);
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -68,4 +69,15 @@ public class MediaService implements IMediaService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+    
+    @Override
+	public Media createForServices(SavedMediaDTO file) {
+		try {
+			Media test = mapper.savedMediaDtoToEntity(file);
+			return mediaRepository.save(test);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+
 }

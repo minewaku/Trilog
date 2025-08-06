@@ -7,6 +7,7 @@ import org.mapstruct.ReportingPolicy;
 
 import com.minewaku.trilog.dto.MediaDTO;
 import com.minewaku.trilog.dto.Media.MediaPostDTO;
+import com.minewaku.trilog.dto.Media.SavedMediaDTO;
 import com.minewaku.trilog.dto.Media.SavedMediaPostDTO;
 import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.entity.MediaPost;
@@ -19,7 +20,10 @@ public interface MediaMapper {
 
     Media dtoToEntity(MediaDTO dto);
     
+    Media savedMediaDtoToEntity(SavedMediaDTO dto);
     
+    
+    @Mapping(source = "id", target = "media.id")
     @Mapping(source = "publicId", target = "media.publicId")
     @Mapping(source = "secureUrl", target = "media.secureUrl")
 	@Mapping(source = "displayOrder", target = "displayOrder")

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,9 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,12 +34,16 @@ public class Media {
 	@Column(name = "id")
 	private Integer id;
     
+    @OneToOne(mappedBy = "media", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private MediaPost mediaPost;
+    
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
-    @NotBlank(message = "publicId is required")
+//    @NotBlank(message = "publicId is required")
     private String publicId;
 
     @Column(name = "secure_url", nullable = false, unique = true, updatable = false)
-    @NotBlank(message = "secureUrl is required")
+//    @NotBlank(message = "secureUrl is required")
     private String secureUrl;
     
     @Column(name = "created_date", nullable = false, updatable = false)

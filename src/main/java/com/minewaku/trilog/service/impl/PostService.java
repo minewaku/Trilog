@@ -20,6 +20,8 @@ import com.minewaku.trilog.dto.Comment.SavedCommentDTO;
 import com.minewaku.trilog.dto.Comment.UpdatedCommentDTO;
 import com.minewaku.trilog.dto.Media.SavedMediaPostDTO;
 import com.minewaku.trilog.dto.Post.PostDTO;
+import com.minewaku.trilog.dto.Post.SavedPostDTO;
+import com.minewaku.trilog.dto.Post.UpdatedPostDTO;
 import com.minewaku.trilog.dto.common.response.CloudinaryResponse;
 import com.minewaku.trilog.dto.common.response.StatusResponse;
 import com.minewaku.trilog.entity.Comment;
@@ -34,6 +36,7 @@ import com.minewaku.trilog.repository.CommentRepository;
 import com.minewaku.trilog.repository.PostRepository;
 import com.minewaku.trilog.repository.UserRepository;
 import com.minewaku.trilog.service.IPostService;
+import com.minewaku.trilog.service.forServices.IInternalPostService;
 import com.minewaku.trilog.specification.SpecificationBuilder;
 import com.minewaku.trilog.util.ErrorUtil;
 import com.minewaku.trilog.util.FileUploadUtil;
@@ -41,11 +44,10 @@ import com.minewaku.trilog.util.MessageUtil;
 import com.minewaku.trilog.util.SecurityUtil;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.metamodel.SingularAttribute;
 
 @Service
-public class PostService implements IPostService {
+public class PostService implements IPostService, IInternalPostService {
 	
 	@Autowired
 	private CloudinaryService cloudinaryService;
@@ -107,10 +109,10 @@ public class PostService implements IPostService {
 	}
 	
 	@Override
-	public PostDTO create(PostDTO post) {
+	public PostDTO create(SavedPostDTO post) {
 	 try {
 		 	User user = userRepository.findById(post.getUserId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
-		 	Post entity = postMapper.dtoToEntity(post);
+		 	Post entity = postMapper.savedPostDtoToEntity(post);
 		 	entity.setUser(user);
            
             Post savedPost = postRepository.save(entity); 
@@ -121,11 +123,11 @@ public class PostService implements IPostService {
 	}
 	
 	@Override
-    public PostDTO update(int id, PostDTO Post) {
+    public PostDTO update(int id, UpdatedPostDTO Post) {
         try {
-            postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.post"))); 
-            Post savedPost = postRepository.save(postMapper.dtoToEntity(Post)); 
-            return postMapper.entityToDto(savedPost);
+            Post savedPost = postRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.POST_NOT_FOUND)); 
+            Post updatedPost = postRepository.save(postMapper.updateFromDtoToEntity(Post, savedPost)); 
+            return postMapper.entityToDto(updatedPost);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -252,4 +254,14 @@ public class PostService implements IPostService {
 			throw new RuntimeException(e.getMessage(), e);
 		}
     }
+    
+    @Override
+	public Post createForServices(SavedPostDTO dto) {
+		try {
+			Post post = postMapper.savedPostDtoToEntity(dto);
+			return postRepository.save(post);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
 }

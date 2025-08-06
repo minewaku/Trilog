@@ -18,10 +18,7 @@ public class Application {
 	/* LOVELY NOTE */
 	
 	//add more variant of dto like return user, save user, update user,...
-	//add checking if role is already assigned to any user before deleting
 	//check valid phone because the jakarta validation doesn't support it
-	//add view, comment counting logic
-	//improve like, view, comment counting logic
-	//
+	//apply isDeleted, isLocked,... on every apis
 
 }

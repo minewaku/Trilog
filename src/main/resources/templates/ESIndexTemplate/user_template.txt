@@ -1,0 +1,24 @@
+PUT _index_template/user_template
+{
+  "index_patterns": ["user*"],
+  "template": {
+    "mappings": {
+      "properties": {
+        "id": { "type": "integer" },
+        "name": {
+          "type": "search_as_you_type",
+          "fields": {
+            "keyword": { "type": "keyword" }
+          }
+        },
+        "email": {
+          "type": "search_as_you_type",
+          "fields": {
+            "keyword": { "type": "keyword" }
+          }
+        }
+      }
+    }
+  },
+  "priority": 1
+}

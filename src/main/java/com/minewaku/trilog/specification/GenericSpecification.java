@@ -2,6 +2,7 @@ package com.minewaku.trilog.specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -75,8 +76,11 @@ public class GenericSpecification<T> implements Specification<T> {
         } else if (targetType.equals(LocalDate.class)) {
             return LocalDate.parse(value);
         } else if (targetType.equals(LocalDateTime.class)) {
-            return LocalDateTime.parse(value);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(value, formatter);
+            return date.atStartOfDay();
         }
+
         throw new IllegalArgumentException("Unsupported type: " + targetType);
     }
 }

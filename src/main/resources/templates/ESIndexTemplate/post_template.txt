@@ -13,9 +13,9 @@ PUT _index_template/post_template
           }
         },
         "content": { "type": "text" },
-        "likes": { "type": "integer" },
-        "views": { "type": "integer" },
-        "comments": { "type": "integer" },
+        "like_count": { "type": "integer" },
+        "view_count": { "type": "integer" },
+        "comment_count": { "type": "integer" },
         "created_date": { "type": "date" },
         "status": { "type": "integer" },
         "location": { "type": "geo_point" }

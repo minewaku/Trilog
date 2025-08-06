@@ -42,10 +42,13 @@ public class ESPost {
     private String content;
     
     @Field(type = FieldType.Integer)
-    private Integer likes;
+    private Integer like_count;
     
     @Field(type = FieldType.Integer)
-    private Integer comments;
+    private Integer comment_count;
+    
+    @Field(type = FieldType.Integer)
+    private Integer view_count;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Field(type = FieldType.Date, name = "created_date")

@@ -36,11 +36,11 @@ import lombok.experimental.SuperBuilder;
 public class Role extends BaseEntity {
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, orphanRemoval = true)
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
 	private List<RolePermission> rolePermissions;
 	
 	@JsonManagedReference
-	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, orphanRemoval = true)
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
 	private List<UserRole> userRoles;
 
     @Column(name = "name", length = 255, nullable = false, unique = true)

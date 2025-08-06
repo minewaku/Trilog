@@ -14,6 +14,7 @@ import com.minewaku.trilog.repository.MediaPostRepository;
 import com.minewaku.trilog.repository.PostRepository;
 import com.minewaku.trilog.service.IMediaPostService;
 import com.minewaku.trilog.util.ErrorUtil;
+import com.minewaku.trilog.util.LogUtil;
 
 @Service
 public class MediaPostService implements IMediaPostService{
@@ -38,6 +39,7 @@ public class MediaPostService implements IMediaPostService{
         	
         	MediaPost savedMedia = mediaMapper.savedMediaPostDtoToEntity(media);
         	savedMedia.setPost(owner);
+//        	LogUtil.LOGGER.info(savedMedia.toString());
         			
 			return mediaMapper.mediaPostEntityToMediaPostDto(mediaPostRepository.save(savedMedia));
         } catch(Exception e) {

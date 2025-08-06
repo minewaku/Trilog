@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.minewaku.trilog.dto.MediaDTO;
+import com.minewaku.trilog.dto.Media.SavedMediaDTO;
 import com.minewaku.trilog.dto.common.response.CloudinaryResponse;
 import com.minewaku.trilog.service.impl.CloudinaryService;
 import com.minewaku.trilog.service.impl.MediaService;
@@ -44,7 +45,7 @@ public class UploadFileFacade {
             } else {
                 FileUploadUtil.assertImageAllowed(file, FileUploadUtil.IMAGE_PATTERN);
                 CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadFile(file, "/trilog/users/images");  
-                MediaDTO savedFile = mediaService.create(MediaDTO.builder()
+                MediaDTO savedFile = mediaService.create(SavedMediaDTO.builder()
                                                             .publicId(cloudinaryResponse.getPublicId())
                                                             .secureUrl(cloudinaryResponse.getSecureUrl())
                                                             .build());
@@ -92,7 +93,7 @@ public class UploadFileFacade {
             } else {
                 FileUploadUtil.assertImageAllowed(file, FileUploadUtil.IMAGE_PATTERN);
                 CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadFile(file, "/trilog/users/covers");  
-                MediaDTO savedFile = mediaService.create(MediaDTO.builder()
+                MediaDTO savedFile = mediaService.create(SavedMediaDTO.builder()
                                                             .publicId(cloudinaryResponse.getPublicId())
                                                             .secureUrl(cloudinaryResponse.getSecureUrl())
                                                             .build());

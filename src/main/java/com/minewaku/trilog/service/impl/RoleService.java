@@ -2,7 +2,6 @@ package com.minewaku.trilog.service.impl;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import com.minewaku.trilog.dto.RoleDTO;
+import com.minewaku.trilog.dto.Role.RoleDTO;
+import com.minewaku.trilog.dto.Role.UpdatedRoleDTO;
 import com.minewaku.trilog.entity.Permission;
 import com.minewaku.trilog.entity.Role;
 import com.minewaku.trilog.entity.RolePermission;
@@ -30,7 +29,6 @@ import com.minewaku.trilog.repository.PermissionRepository;
 import com.minewaku.trilog.repository.RoleRepository;
 import com.minewaku.trilog.repository.UserRepository;
 import com.minewaku.trilog.service.IRoleService;
-import com.minewaku.trilog.specification.RoleSpecification;
 import com.minewaku.trilog.specification.SpecificationBuilder;
 import com.minewaku.trilog.util.ErrorUtil;
 
@@ -106,7 +104,7 @@ public class RoleService implements IRoleService {
     @Override
     public void removeRolesFromUser(Integer userId, List<Integer> roleIds) {
 		User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
-		user.setUserRoles(new ArrayList<>());
+		user.getUserRoles().clear();
 		userRepository.save(user);
     }
     
@@ -142,7 +140,7 @@ public class RoleService implements IRoleService {
 	@Override
 	public void removePermissionsFromRole(Integer roleId, List<Integer> permissionIds) {
 		Role role = roleRepository.findById(roleId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND));
-		role.setRolePermissions(new ArrayList<>());
+		role.getRolePermissions().clear();
 		roleRepository.save(role);
 	}
 
@@ -157,11 +155,11 @@ public class RoleService implements IRoleService {
     }
 
     @Override
-    public RoleDTO update(Integer id, RoleDTO role) {
+    public RoleDTO update(Integer id, UpdatedRoleDTO role) {
         try {
-            roleRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND)); 
-            Role savedRole = roleRepository.save(mapper.dtoToEntity(role)); 
-            return mapper.entityToDto(savedRole);
+            Role savedUser = roleRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.ROLE_NOT_FOUND)); 
+            Role updatedUser = roleRepository.save(mapper.updateFromDtoToEntity(role, savedUser)); 
+            return mapper.entityToDto(updatedUser);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

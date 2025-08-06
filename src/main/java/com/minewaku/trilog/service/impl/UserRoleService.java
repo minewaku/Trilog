@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.entity.Role;
+import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.entity.UserRole;
 import com.minewaku.trilog.entity.EmbededId.UserRoleId;
 import com.minewaku.trilog.repository.RoleRepository;
 import com.minewaku.trilog.repository.UserRoleRepository;
 import com.minewaku.trilog.service.IUserRoleService;
-import com.minewaku.trilog.util.MessageUtil;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.minewaku.trilog.util.ErrorUtil;
+import com.minewaku.trilog.util.LogUtil;
 
 @Service
 public class UserRoleService implements IUserRoleService {
@@ -26,11 +26,19 @@ public class UserRoleService implements IUserRoleService {
 	@Autowired
 	private RoleRepository roleRepository;
 	
-	public UserRole createDefaultUserRole(Integer userId) {
+	@Autowired
+	private ErrorUtil errorUtil;
+	
+	@Override
+	public UserRole createDefaultUserRole(User user) {
 
-		Role defaultRole = roleRepository.findByName(defaultRoleName).orElseThrow(() -> new EntityNotFoundException(MessageUtil.getMessage("error.get.role"))); 
-		UserRoleId id = new UserRoleId(userId, defaultRole.getId());
-		UserRole userRole = UserRole.builder().id(id).build();
+		Role defaultRole = roleRepository.findByName(defaultRoleName).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
+		LogUtil.LOGGER.error(defaultRole.toString());
+		UserRole userRole = new UserRole();
+		userRole.setUser(user);
+		userRole.setRole(defaultRole);
+		userRole.setId(new UserRoleId(user.getId(), defaultRole.getId()));
+		
 		return userRoleRepository.save(userRole);
 	}
 }

@@ -1,6 +1,6 @@
 package com.minewaku.trilog.search.service;
 
-import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.User.UserDTO;
 import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
 

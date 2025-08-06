@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.User.UserDTO;
 import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
 import com.minewaku.trilog.entity.User;
@@ -33,8 +33,8 @@ public class ESUserService implements ESIUserService {
 			CursorPage<Integer> esResult =  esUserRepositoryCustom.suggestUsers(keyword, cursor);
 			List<User> result = userRepository.findAllById(esResult.getRecords());
 			
-			return CursorPage.<UserDTO>builder().
-					after(esResult.getAfter())
+			return CursorPage.<UserDTO>builder()
+					.after(esResult.getAfter())
 					.before(esResult.getBefore())
 					.limit(esResult.getLimit()).total(result.size())
 					.records(result.stream().map(userMapper::entityToDto).toList())

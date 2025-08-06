@@ -26,18 +26,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Permission", description = "Permission API")
 @RestController
-@RequestMapping("/api/v1/permissisons")
+@RequestMapping("/api/v1/permissions")
 public class PermissionController {
 	
 	/**
 	 * ALL AVAILABLE APIS
 	 * 
-	 * @summary GET /api/v1/permissisons - @see {@link #findAll}
-	 * @summary GET /api/v1/permissisons/{id} - @see {@link #findById}
+	 * @summary GET /api/v1/permissions - @see {@link #findAll}
+	 * @summary GET /api/v1/permissions/{id} - @see {@link #findById}
 	 * 
-	 * @summary POST /api/v1/permissisons - @see {@link #create}
-	 * @summary PUT /api/v1/permissisons/{id} - @see {@link #update}
-	 * @summary DELETE /api/v1/permissisons/{ids} - @see {@link #delete}
+	 * @summary POST /api/v1/permissions - @see {@link #create}
+	 * @summary PUT /api/v1/permissions/{id} - @see {@link #update}
+	 * @summary DELETE /api/v1/permissions/{ids} - @see {@link #delete}
 	 * 
 	 */
 	

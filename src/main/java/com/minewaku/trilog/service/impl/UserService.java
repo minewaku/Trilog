@@ -13,14 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.MediaDTO;
-import com.minewaku.trilog.dto.RoleDTO;
-import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.User.UpdatedUserDTO;
+import com.minewaku.trilog.dto.User.UserDTO;
 import com.minewaku.trilog.dto.common.request.RegisterRequest;
 import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.entity.User_;
 import com.minewaku.trilog.mapper.MediaMapper;
-import com.minewaku.trilog.mapper.RoleMapper;
 import com.minewaku.trilog.mapper.UserMapper;
 import com.minewaku.trilog.repository.MediaRepository;
 import com.minewaku.trilog.repository.UserRepository;
@@ -31,6 +30,7 @@ import com.minewaku.trilog.util.ErrorUtil;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService implements IUserService {
@@ -49,9 +49,6 @@ public class UserService implements IUserService {
     
     @Autowired
     private UserMapper userMapper;
-    
-    @Autowired
-    private RoleMapper roleMapper;
 
     @Autowired
     private MediaMapper mediaMapper;
@@ -100,12 +97,12 @@ public class UserService implements IUserService {
     }
     
     @Override
-	public List<RoleDTO> getRolesByUserId(Integer userId) {
+	public List<String> getRolesByUserId(Integer userId) {
 		try {
             return userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND))
             		.getUserRoles()
             		.stream()
-            		.map(userRole -> roleMapper.entityToDto(userRole.getRole()))
+            		.map(userRole -> userRole.getRole().getName())
             		.toList();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -114,6 +111,7 @@ public class UserService implements IUserService {
 
 
     @Override
+    @Transactional
     public UserDTO create(RegisterRequest request) {
         try {
         	// Validating if the email already exists
@@ -130,10 +128,11 @@ public class UserService implements IUserService {
     				.isLocked(false)
     				.isDeleted(false)
     				.build();
+    		
     		user = userRepository.save(user);
     		
     		// Creating default Role for the user
-    		userRoleService.createDefaultUserRole(user.getId());
+    		userRoleService.createDefaultUserRole(user);
     		
     		User savedUser = userRepository.findById(user.getId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
     		
@@ -144,11 +143,11 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserDTO update(Integer id, UserDTO user) {
+    public UserDTO update(Integer id, UpdatedUserDTO user) {
         try {
-            userRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
-            User savedUser = userRepository.save(userMapper.dtoToEntity(user)); 
-            return userMapper.entityToDto(savedUser);
+            User savedUser = userRepository.findById(id).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND)); 
+            User updatedUser = userRepository.save(userMapper.updateFromDtoToEntity(user, savedUser)); 
+            return userMapper.entityToDto(updatedUser);
         } catch (Exception e) {
         	throw new RuntimeException(e.getMessage(), e);
         }
@@ -186,6 +185,7 @@ public class UserService implements IUserService {
 
     
     @Override
+    @Transactional
     public MediaDTO updateImage(Integer userId, Integer imageId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
@@ -200,6 +200,7 @@ public class UserService implements IUserService {
 
 
     @Override
+    @Transactional
     public MediaDTO updateCover(Integer userId, Integer coverId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));

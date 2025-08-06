@@ -3,6 +3,7 @@ package com.minewaku.trilog.entity;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -22,12 +23,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
+@Getter
+@Setter
 @Entity
 @Table(name = "user_role")
 @Builder
@@ -59,6 +64,16 @@ public class UserRole {
     
     @PrePersist
     protected void onCreate() {
+    	if (id == null) {
+			id = new UserRoleId();
+		}
+    	
+    	if (createdBy == null) {
+    		User systemUser = new User();
+    		systemUser.setId(1);
+    		createdBy = systemUser;
+    	}
+    	
         createdDate = ZonedDateTime.now(ZoneId.of("Z")).toLocalDateTime();
     }
 }

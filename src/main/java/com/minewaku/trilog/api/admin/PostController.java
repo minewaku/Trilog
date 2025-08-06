@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.minewaku.trilog.dto.Comment.CommentDTO;
 import com.minewaku.trilog.dto.Comment.SavedCommentDTO;
-import com.minewaku.trilog.dto.Media.MediaPostDTO;
 import com.minewaku.trilog.dto.Post.PostDTO;
 import com.minewaku.trilog.dto.Post.SavedPostDTO;
+import com.minewaku.trilog.dto.Post.UpdatedPostDTO;
 import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
 import com.minewaku.trilog.facade.UploadPostFacade;
@@ -106,24 +107,24 @@ public class PostController {
 	}
 	
 	@GetMapping(path = "/search")
-	public ResponseEntity<CursorPage<PostDTO>> searchByContent(@PathVariable String q, @RequestBody Cursor cursor) {
+	public ResponseEntity<CursorPage<PostDTO>> searchByContent(@RequestParam String q, @RequestBody Cursor cursor) {
 		CursorPage<PostDTO> posts = esPostService.searchByContent(q, cursor);
 		return ResponseEntity.status(HttpStatus.OK).body(posts);
 	}
 	
 	@GetMapping(path = "/hashtag/search")
-	public ResponseEntity<CursorPage<PostDTO>> searchByHashtag(@PathVariable String q, @RequestBody Cursor cursor) {
+	public ResponseEntity<CursorPage<PostDTO>> searchByHashtag(@RequestParam String q, @RequestBody Cursor cursor) {
 		CursorPage<PostDTO> posts = esPostService.searchByHashtag(q, cursor);
 		return ResponseEntity.status(HttpStatus.OK).body(posts);
 	}
 	
 	@PostMapping(path = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<PostDTO> add(@RequestBody SavedPostDTO post,  @RequestPart("files") List<MultipartFile> files) {
+	public ResponseEntity<PostDTO> add(@RequestPart("body") SavedPostDTO post,  @RequestPart("files") List<MultipartFile> files) {
 		return ResponseEntity.status(HttpStatus.OK).body(uploadPostFacade.uploadPost(post, files));
 	}
 	
 	@PutMapping(path = "/{id}")
-	public ResponseEntity<PostDTO> update(@PathVariable int id, @RequestBody PostDTO post, @RequestBody List<MediaPostDTO> media) {
+	public ResponseEntity<PostDTO> update(@PathVariable int id, @RequestBody UpdatedPostDTO post) {
 		return ResponseEntity.status(HttpStatus.OK).body(postService.update(id, post));
 	}
 	

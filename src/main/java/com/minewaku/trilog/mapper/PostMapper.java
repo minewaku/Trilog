@@ -1,9 +1,10 @@
 package com.minewaku.trilog.mapper;
 
-import java.util.Set;
+import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -11,6 +12,7 @@ import org.mapstruct.ReportingPolicy;
 import com.minewaku.trilog.dto.Media.MediaPostDTO;
 import com.minewaku.trilog.dto.Post.PostDTO;
 import com.minewaku.trilog.dto.Post.SavedPostDTO;
+import com.minewaku.trilog.dto.Post.UpdatedPostDTO;
 import com.minewaku.trilog.entity.MediaPost;
 import com.minewaku.trilog.entity.Post;
 import com.minewaku.trilog.search.document.ESPost;
@@ -44,12 +46,13 @@ public interface PostMapper {
     @Mapping(source = "lon", target = "lon")
     @Mapping(source = "media", target = "thumbnails", qualifiedByName = "mediaPostsToThumbnails")
     PostDTO entityToDto(Post entity);
-	
+    
+    Post updateFromDtoToEntity(UpdatedPostDTO source, @MappingTarget Post target);
 	
 	ESPost dtoToESPost(PostDTO dto);
 	
 	@Named("mediaPostsToThumbnails")
-    default MediaPostDTO[] mediaPostsToThumbnails(Set<MediaPost> mediaPosts) {
+    default MediaPostDTO[] mediaPostsToThumbnails(List<MediaPost> mediaPosts) {
         if (mediaPosts == null) {
             return new MediaPostDTO[0];
         }

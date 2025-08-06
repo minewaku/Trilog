@@ -23,12 +23,18 @@ public class ESUser {
 	
 	// use “Partial Field” Strategy if you have time
 	@MultiField(
-        mainField = @Field(type = FieldType.Search_As_You_Type),
+    mainField = @Field(type = FieldType.Search_As_You_Type),
         otherFields = {
             @InnerField(suffix = "keyword", type = FieldType.Keyword)
         }
     )
 	private String name;
 	
-		
+	@MultiField(
+    mainField = @Field(type = FieldType.Search_As_You_Type),
+	    otherFields = {
+	        @InnerField(suffix = "keyword", type = FieldType.Keyword)
+	        }
+	    )
+	private String email;	
 }

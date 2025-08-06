@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.minewaku.trilog.config.properties.CloudinaryProperties;
+import com.minewaku.trilog.util.LogUtil;
 
 @Configuration
 @EnableConfigurationProperties(CloudinaryProperties.class)
@@ -16,13 +17,19 @@ public class CloudinaryConfig {
     @Autowired
     private CloudinaryProperties cloudinaryProperties;
 
-    @Bean CloudinaryProperties cloudinaryProperties() {
-        return new CloudinaryProperties();
-    }
-    
     @Bean
     public Cloudinary cloudinary() {
         try {
+        	LogUtil.LOGGER.info("Initializing Cloudinary with:\n"
+        			+ "cloud_name: {},\n"
+        			+ "api_key: {},\n"
+        			+ "api_serect: {},\n"
+        			+ "secure: {}\n",
+                cloudinaryProperties.getCloud_name(), 
+                cloudinaryProperties.getApi_key(), 
+                cloudinaryProperties.getApi_secret(),
+                cloudinaryProperties.isSecure());
+        	
             return new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudinaryProperties.getCloud_name(),
                 "api_key", cloudinaryProperties.getApi_key(),

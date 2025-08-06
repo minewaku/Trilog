@@ -1,7 +1,7 @@
 package com.minewaku.trilog.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,15 +18,15 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 
 @Entity
 @Table(name = "post")
@@ -38,10 +38,10 @@ public class Post extends BaseEntity {
     private String content;
     
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<MediaPost> media;
+    private List<MediaPost> media;
     
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Comment> comments;
+    private List<Comment> comments;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -84,7 +84,7 @@ public class Post extends BaseEntity {
 			status = 0;
 		
 		if (media == null)
-			media = new HashSet<>();
+			media = new ArrayList<>();
 		
 		likeCount = 0;
 		viewCount = 0;

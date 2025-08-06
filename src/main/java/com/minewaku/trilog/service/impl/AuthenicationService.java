@@ -87,7 +87,7 @@ public class AuthenicationService implements IAuthenticationService {
 		user = userRepository.save(user);
 		
 		// Creating default Role for the user
-		userRoleService.createDefaultUserRole(user.getId());
+		userRoleService.createDefaultUserRole(user);
 
 		// Sending email verification event
 		eventPublisher.publishEvent(new EmailVerificationEvent(this, user));

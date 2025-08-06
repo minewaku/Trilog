@@ -46,7 +46,7 @@ import lombok.experimental.SuperBuilder;
 public class User extends BaseEntity implements UserDetails, CredentialsContainer {
 	
 //	@JsonManagedReference
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private List<UserRole> userRoles;
 	
 	@Column(name = "email", nullable = false, unique = true)

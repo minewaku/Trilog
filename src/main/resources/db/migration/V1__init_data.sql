@@ -77,3 +77,11 @@ VALUES
 (2, 11, 1, '2024-06-28 14:48:18.000000'),
 (2, 12, 1, '2024-06-28 14:48:18.000000');
 
+-- Insert into post table
+INSERT INTO post (id, content, user_id, like_count, view_count, comment_count, status, lat, lon, created_date)
+VALUES
+(3, 'It fxxking GLOWS...!:v SHINY...!:v GOLDEN...! \n:v /Ah yes the level uncap glow strikes again...:v ', 37, 0, 0, 0, 1, 0, 0, '2025-04-30T08:59:58.214065Z'),
+(2, 'Chiến Thần Lạc Hồng vừa ra mắt thời gian gần đây và nhanh chóng lập tức tạo tiếng vang trong lòng khán giả Việt Nam và bạn bè quốc tế. Bộ phim lần đầu kết hợp yếu tố hành động - viễn tưởng theo phong cách Tokusatsu với chất liệu văn hóa dân gian Việt Nam đã thu về một lượng lớn người xem trên YouTube.', 2, 0, 0, 0, 0, 0, 0, '2025-04-30T08:49:23.748666Z'),
+(1, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque commodo enim lacus, non mattis lectus ornare eu. Vivamus eleifend tellus quis urna cursus, at ornare nisl pellentesque. Duis pellentesque lobortis erat. Mauris rhoncus mauris ex, ac dictum nunc congue vulputate. Donec vel rutrum arcu. Aenean blandit aliquet laoreet. Praesent augue ligula, consectetur a tellus sed, elementum pulvinar dolor. Maecenas ultrices gravida ante', 1, 0, 0, 0, 0, 12, 12, '2025-04-30T08:14:45.723467Z');
+
+

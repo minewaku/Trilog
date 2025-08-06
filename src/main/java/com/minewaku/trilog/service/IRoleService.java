@@ -7,9 +7,8 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.minewaku.trilog.dto.RoleDTO;
-import com.minewaku.trilog.dto.common.response.CursorPage;
-import com.minewaku.trilog.dto.model.Cursor;
+import com.minewaku.trilog.dto.Role.RoleDTO;
+import com.minewaku.trilog.dto.Role.UpdatedRoleDTO;
 
 public interface IRoleService {
     Page<RoleDTO> findAll(Map<String, String> params, Pageable pageable);
@@ -23,6 +22,6 @@ public interface IRoleService {
     RoleDTO findById(Integer id);
     
     RoleDTO create(RoleDTO role);
-    RoleDTO update(Integer id, RoleDTO role);
+    RoleDTO update(Integer id, UpdatedRoleDTO role);
     void delete(List<Integer> ids);
 }

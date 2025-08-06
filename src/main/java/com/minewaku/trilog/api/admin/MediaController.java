@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.minewaku.trilog.dto.MediaDTO;
+import com.minewaku.trilog.dto.Media.SavedMediaDTO;
 import com.minewaku.trilog.service.impl.MediaService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +45,7 @@ public class MediaController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<MediaDTO> create(@RequestBody MediaDTO file) {
+    public ResponseEntity<MediaDTO> create(@RequestBody SavedMediaDTO file) {
         return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(mediaService.create(file));
     }

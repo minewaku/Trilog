@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 
 @Builder
-public class MediaPostDTO {
+public class SavedMediaDTO {
 	private String publicId;
 	private String secureUrl;
-	private Integer displayOrder;
-	private Boolean isThumbnail;
 }

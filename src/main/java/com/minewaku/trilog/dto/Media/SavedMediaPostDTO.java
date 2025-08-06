@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Builder
 public class SavedMediaPostDTO implements Serializable {
+	private Integer id;
 	private Integer postId;
 	private String publicId;
 	private String secureUrl;

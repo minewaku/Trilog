@@ -1,15 +1,17 @@
 package com.minewaku.trilog.mapper;
 
 import java.util.List;
-import java.util.Set;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import com.minewaku.trilog.dto.UserDTO;
+import com.minewaku.trilog.dto.User.UpdatedUserDTO;
+import com.minewaku.trilog.dto.User.UserDTO;
 import com.minewaku.trilog.entity.Media;
 import com.minewaku.trilog.entity.User;
 import com.minewaku.trilog.entity.UserRole;
@@ -32,6 +34,7 @@ public interface UserMapper {
     @Mapping(target = "userRoles", ignore = true)
     User dtoToEntity(UserDTO dto);
     
+    User updateFromDtoToEntity(UpdatedUserDTO source, @MappingTarget User target);
 
     @Named("userRolesToStrings")
     default List<String> rolesToStrings(List<UserRole> userRoles) {

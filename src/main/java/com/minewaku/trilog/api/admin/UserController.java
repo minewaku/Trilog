@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.minewaku.trilog.dto.MediaDTO;
-import com.minewaku.trilog.dto.RoleDTO;
-import com.minewaku.trilog.dto.UserDTO;
 import com.minewaku.trilog.dto.Post.PostDTO;
+import com.minewaku.trilog.dto.User.UpdatedUserDTO;
+import com.minewaku.trilog.dto.User.UserDTO;
 import com.minewaku.trilog.dto.common.request.RegisterRequest;
 import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
@@ -86,7 +86,7 @@ public class UserController {
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<CursorPage<UserDTO>> search(@PathVariable String q, @RequestBody Cursor cursor) {
+	public ResponseEntity<CursorPage<UserDTO>> search(@RequestParam String q, @RequestBody Cursor cursor) {
 		return ResponseEntity.status(HttpStatus.OK).body(esUserService.suggestUsers(q, cursor));
 	}
 
@@ -123,7 +123,7 @@ public class UserController {
 
 	
     @GetMapping("{id}/roles")
-    public ResponseEntity<List<RoleDTO>> getRolesByUserId(@PathVariable Integer id) {
+    public ResponseEntity<List<String>> getRolesByUserId(@PathVariable Integer id) {
         return ResponseEntity.status(HttpStatus.OK)
                             .body(userService.getRolesByUserId(id)); 
     }
@@ -149,7 +149,7 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<UserDTO> update(@PathVariable Integer id, @RequestBody UserDTO user) {
+	public ResponseEntity<UserDTO> update(@PathVariable Integer id, @RequestBody UpdatedUserDTO user) {
 		return ResponseEntity.status(HttpStatus.OK).body(userService.update(id, user));
 	}
 	

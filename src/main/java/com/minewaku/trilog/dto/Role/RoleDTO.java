@@ -1,4 +1,6 @@
-package com.minewaku.trilog.dto;
+package com.minewaku.trilog.dto.Role;
+
+import com.minewaku.trilog.dto.BaseDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 public class RoleDTO extends BaseDTO {
-	private Integer userId;
     private String name;
     private String description; 
 }

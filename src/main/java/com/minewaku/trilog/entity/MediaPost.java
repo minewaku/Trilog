@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -34,10 +35,12 @@ public class MediaPost {
     @MapsId
 	@OneToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "id", referencedColumnName = "id")
+    @ToString.Exclude
 	private Media media;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "post_id", nullable = false)
+    @ToString.Exclude
 	private Post post;
 	
 	@Column(name = "display_order", nullable = false)

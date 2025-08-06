@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
+import com.minewaku.trilog.search.document.ESPost;
 import com.minewaku.trilog.search.repository.custom.CursorPageBuilder;
 import com.minewaku.trilog.search.repository.custom.ESPostRepositoryCustom;
 import com.minewaku.trilog.util.ErrorUtil;
@@ -54,69 +55,53 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom, CursorPageB
                 "(1.0 / (1.0 + Math.exp(-2.5 * (doc['comments'].value - 50.0) / 50.0))) * 0.3";
 
         var searchBuilder = new SearchRequest.Builder()
-        	.index("post")
-            .query(q -> q
-                .functionScore(fs -> fs
-                    .query(inner -> inner
-                        .bool(b -> b
-                    		.must(m -> m
-                                .matchPhrase(mp -> mp
-                                    .field("content")
-                                    .query("#" + keyword)
-                                )
-                            )
-                        )
-                    )
-                    .query(inner -> inner
-                    	.scriptScore(sc -> sc
-                			.script(script -> script
-                                .inline(i -> i
-                                    .source(scriptSource)
-                                )
-                			)
-                    	)
-                    )
-                    .boostMode(FunctionBoostMode.Sum)
-                    .scoreMode(FunctionScoreMode.Sum)
-                    .functions(f -> f
-                        .gauss(gauss -> gauss
-                            .field("createdDate")
-                            .placement(pl -> pl
-                                .origin(JsonData.of("now"))
-                                .scale(JsonData.of("7d"))
-                                .decay(0.5)
-                            )
-                        )
-                        .weight(2.0)
-                    )
-                )
-            )
-            .sort(sort -> sort
-                .field(f -> f
-                    .field("id")
-                    .order(SortOrder.Desc)
-                )
-            )
-            .source(src -> src
-                .filter(f -> f
-                    .includes("id")
-                )
-            );
+        	    .index("post")
+        	    .query(q -> q
+        	        .scriptScore(sc -> sc
+        	            .query(inner -> inner
+        	                .bool(b -> b
+        	                    .must(m -> m
+        	                        .matchPhrase(mp -> mp
+        	                            .field("content")
+        	                            .query("#" + keyword)
+        	                        )
+        	                    )
+        	                )
+        	            )
+        	            .script(script -> script
+        	                .inline(i -> i
+        	                    .source(scriptSource)
+        	                )
+        	            )
+        	        )
+        	    )
+        	    .sort(sort -> sort
+        	        .field(f -> f
+        	            .field("id")
+        	            .order(SortOrder.Desc)
+        	        )
+        	    )
+        	    .source(src -> src
+        	        .filter(f -> f
+        	            .includes("id")
+        	        )
+        	    );
 
-        if (cursor.getAfter() != null) {
-            List<FieldValue> searchAfterValues = List.of(FieldValue.of(cursor.getAfter()));
-            searchBuilder.searchAfter(searchAfterValues);
-        }
+
+		if (cursor != null && cursor.getAfter() != null) {
+		    searchBuilder.searchAfter(FieldValue.of(cursor.getAfter()));
+		}
 
         // Execute search
-        SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
+		SearchResponse<ESPost> response = elasticsearchClient.search(searchBuilder.build(), ESPost.class);
 
         // Process results
-        List<Integer> list = response.hits().hits().stream()
-                .map(Hit::source)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        
+		List<Integer> list = response.hits().hits().stream()
+			    .map(Hit::source)
+			    .map(source -> source.getId())
+			    .collect(Collectors.toList());
+
+			
         return CursorPageBuilder.buildCursorResponse(list, cursor);
     }
 
@@ -146,6 +131,7 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom, CursorPageB
         // Create search request builder with common parameters
         var searchBuilder = new SearchRequest.Builder()
             .index("post")
+            .size(cursor != null && cursor.getLimit() != null ? cursor.getLimit() : 10)
             .query(q -> q
                 .functionScore(fs -> fs
                     .query(inner -> inner
@@ -199,24 +185,24 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom, CursorPageB
                 .filter(f -> f
                     .includes("id")
                 )
-            )
-            .size(cursor.getLimit() + 1); // give an extra row to determine if there are more results
+            );
+
 
         // Add searchAfter only if we have an "after" cursor value
-        if (cursor.getAfter() != null) {
-            List<FieldValue> searchAfterValues = List.of(FieldValue.of(cursor.getAfter()));
-            searchBuilder.searchAfter(searchAfterValues);
-        }
+		if (cursor != null && cursor.getAfter() != null) {
+		    searchBuilder.searchAfter(FieldValue.of(cursor.getAfter()));
+		}
+
 
         // Execute search
-        SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
+		SearchResponse<ESPost> response = elasticsearchClient.search(searchBuilder.build(), ESPost.class);
 
         // Process results
-        List<Integer> list = response.hits().hits().stream()
-                .map(Hit::source)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        
+		List<Integer> list = response.hits().hits().stream()
+			    .map(Hit::source)
+			    .map(source -> source.getId())
+			    .collect(Collectors.toList());
+		
         return CursorPageBuilder.buildCursorResponse(list, cursor);
     }
     
@@ -238,29 +224,27 @@ public class ESPostRepositoryImpl implements ESPostRepositoryCustom, CursorPageB
 	    	.size(cursor.getLimit() + 1) //give an extra row in order to get the after cursor position
 			.sort(sort -> sort
 				.field(f -> f
-					.field("postId")
+					.field("id")
 					.order(SortOrder.Desc)
 				)
 			)
 			.query(q -> q
 				.term(t -> t
-					.field("userId")
+					.field("user_id")
 					.value(userId)
 				)
 			);
         
-        if (cursor.getAfter() != null) {
-            List<FieldValue> searchAfterValues = List.of(FieldValue.of(cursor.getAfter()));
-            searchBuilder.searchAfter(searchAfterValues);
-        }
+		if (cursor != null && cursor.getAfter() != null) {
+		    searchBuilder.searchAfter(FieldValue.of(cursor.getAfter()));
+		}
         
-        SearchResponse<Integer> response = elasticsearchClient.search(searchBuilder.build(), Integer.class);
+		SearchResponse<ESPost> response = elasticsearchClient.search(searchBuilder.build(), ESPost.class);
 
-        List<Integer> list = response.hits().hits().stream()
-            .map(Hit::source)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        
+		List<Integer> list = response.hits().hits().stream()
+			    .map(Hit::source)
+			    .map(source -> source.getId())
+			    .collect(Collectors.toList());
         
         return CursorPageBuilder.buildCursorResponse(list, cursor);
     }
