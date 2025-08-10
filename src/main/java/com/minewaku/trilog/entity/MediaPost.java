@@ -2,6 +2,7 @@ package com.minewaku.trilog.entity;
 
 import org.hibernate.annotations.DynamicUpdate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,7 +34,7 @@ public class MediaPost {
     private Integer id;
 	
     @MapsId
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "id", referencedColumnName = "id")
     @ToString.Exclude
 	private Media media;

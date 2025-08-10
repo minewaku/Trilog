@@ -19,4 +19,9 @@ public interface PostRepository extends JpaRepository<Post, Integer>,  JpaSpecif
     @Transactional
     @Query("UPDATE Post p SET p.status = 3 WHERE p.id IN :ids")
     int softDeletePosts(@Param("ids") List<Integer> ids);
+    
+    @Modifying
+    @Query("UPDATE Post p SET p.likeCount = p.likeCount + :count WHERE p.id = :postId")
+    void incrementLikeCount(@Param("postId") Integer postId, @Param("count") int count);
+
 }

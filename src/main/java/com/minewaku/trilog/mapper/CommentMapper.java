@@ -6,6 +6,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.minewaku.trilog.dto.Comment.CommentDTO;
+import com.minewaku.trilog.dto.Comment.SavedCommentDTO;
 import com.minewaku.trilog.entity.Comment;
 
 @Mapper(componentModel = "spring", 
@@ -13,7 +14,13 @@ nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
 unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CommentMapper {
 	
+	@Mapping(target = "id", source = "id")
 	@Mapping(target = "content", source = "content")
 	@Mapping(target = "postId", source = "post.id")
+	@Mapping(target = "userId", source = "user.id")
 	CommentDTO entityToDto(Comment entity);
+	
+	
+	@Mapping(target = "content", source = "content")
+	Comment savedCommentDtoToEntity(SavedCommentDTO savedCommentDTO);
 }

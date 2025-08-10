@@ -26,4 +26,9 @@ public interface IPostService {
 	 StatusResponse deleteMedia(Integer postId, List<Integer> mediaIds);
 	 
 	 CommentDTO addComment(Integer id, SavedCommentDTO savedCommentDTO);
+	 
+	 void incrementLikeCount(Integer postId, Integer countToAdd);
+	 void decrementLikeCount(Integer postId, Integer countToSubtract);
+	 void incrementCommentCount(Integer postId, Integer countToAdd);
+	 void decrementCommentCount(Integer postId, Integer countToSubtract);
 }

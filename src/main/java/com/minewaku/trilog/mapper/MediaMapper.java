@@ -30,6 +30,7 @@ public interface MediaMapper {
 	@Mapping(source = "isThumbnail", target = "isThumbnail")
     MediaPost savedMediaPostDtoToEntity(SavedMediaPostDTO dto);
     
+    @Mapping(source = "media.id", target = "id")
     @Mapping(source = "media.publicId", target = "publicId")
     @Mapping(source = "media.secureUrl", target = "secureUrl")
 	@Mapping(source = "displayOrder", target = "displayOrder")

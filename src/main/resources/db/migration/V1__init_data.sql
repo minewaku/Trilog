@@ -80,8 +80,50 @@ VALUES
 -- Insert into post table
 INSERT INTO post (id, content, user_id, like_count, view_count, comment_count, status, lat, lon, created_date)
 VALUES
-(3, 'It fxxking GLOWS...!:v SHINY...!:v GOLDEN...! \n:v /Ah yes the level uncap glow strikes again...:v ', 37, 0, 0, 0, 1, 0, 0, '2025-04-30T08:59:58.214065Z'),
-(2, 'Chiến Thần Lạc Hồng vừa ra mắt thời gian gần đây và nhanh chóng lập tức tạo tiếng vang trong lòng khán giả Việt Nam và bạn bè quốc tế. Bộ phim lần đầu kết hợp yếu tố hành động - viễn tưởng theo phong cách Tokusatsu với chất liệu văn hóa dân gian Việt Nam đã thu về một lượng lớn người xem trên YouTube.', 2, 0, 0, 0, 0, 0, 0, '2025-04-30T08:49:23.748666Z'),
-(1, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque commodo enim lacus, non mattis lectus ornare eu. Vivamus eleifend tellus quis urna cursus, at ornare nisl pellentesque. Duis pellentesque lobortis erat. Mauris rhoncus mauris ex, ac dictum nunc congue vulputate. Donec vel rutrum arcu. Aenean blandit aliquet laoreet. Praesent augue ligula, consectetur a tellus sed, elementum pulvinar dolor. Maecenas ultrices gravida ante', 1, 0, 0, 0, 0, 12, 12, '2025-04-30T08:14:45.723467Z');
+(3, 'It fxxking GLOWS...!:v SHINY...!:v GOLDEN...! \n:v /Ah yes the level uncap glow strikes again...:v ', 37, 0, 0, 0, 1, 0, 0, '2025-04-30 08:59:58.214065'),
+(2, 'Chiến Thần Lạc Hồng vừa ra mắt thời gian gần đây và nhanh chóng lập tức tạo tiếng vang trong lòng khán giả Việt Nam và bạn bè quốc tế. Bộ phim lần đầu kết hợp yếu tố hành động - viễn tưởng theo phong cách Tokusatsu với chất liệu văn hóa dân gian Việt Nam đã thu về một lượng lớn người xem trên YouTube.', 2, 0, 0, 0, 0, 0, 0, '2025-04-30 08:49:23.748666'),
+(1, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque commodo enim lacus, non mattis lectus ornare eu. Vivamus eleifend tellus quis urna cursus, at ornare nisl pellentesque. Duis pellentesque lobortis erat. Mauris rhoncus mauris ex, ac dictum nunc congue vulputate. Donec vel rutrum arcu. Aenean blandit aliquet laoreet. Praesent augue ligula, consectetur a tellus sed, elementum pulvinar dolor. Maecenas ultrices gravida ante', 1, 0, 0, 0, 0, 12, 12, '2025-04-30 08:14:45.723467');
+
+-- TRIGGERS
+-- Trigger to increment like_count after a like is added
+CREATE TRIGGER update_like_count_after_insert
+AFTER INSERT ON `like`
+FOR EACH ROW
+BEGIN
+    UPDATE post
+    SET like_count = like_count + 1
+    WHERE id = NEW.post_id;
+END;
+
+-- Trigger to decrement like_count after a like is removed
+CREATE TRIGGER update_like_count_after_delete
+AFTER DELETE ON `like`
+FOR EACH ROW
+BEGIN
+    UPDATE post
+    SET like_count = like_count - 1
+    WHERE id = OLD.post_id;
+END;
+
+-- Trigger to increment comment_count after a comment is added
+CREATE TRIGGER update_comment_count_after_insert
+AFTER INSERT ON `comment`
+FOR EACH ROW
+BEGIN
+    UPDATE post
+    SET comment_count = comment_count + 1
+    WHERE id = NEW.post_id;
+END;
+
+-- Trigger to decrement comment_count after a comment is removed
+CREATE TRIGGER update_comment_count_after_delete
+AFTER DELETE ON `comment`
+FOR EACH ROW
+BEGIN
+    UPDATE post
+    SET comment_count = comment_count - 1
+    WHERE id = OLD.post_id;
+END;
+
 
 

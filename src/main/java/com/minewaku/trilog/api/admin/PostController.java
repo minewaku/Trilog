@@ -30,6 +30,7 @@ import com.minewaku.trilog.dto.common.response.CursorPage;
 import com.minewaku.trilog.dto.model.Cursor;
 import com.minewaku.trilog.facade.UploadPostFacade;
 import com.minewaku.trilog.search.service.ESIPostService;
+import com.minewaku.trilog.service.ICommentService;
 import com.minewaku.trilog.service.ILikeService;
 import com.minewaku.trilog.service.IPostService;
 import com.minewaku.trilog.util.DataPreprocessingUtil;
@@ -44,8 +45,7 @@ public class PostController {
 	/**
 	 * ALL AVAILABLE APIS
 	 * 
-	 * @summary GET /api/v1/posts/{id}/likes - @see {@link #like}
-	 * @summary DELETE /api/v1/posts/{id}/likes - @see {@link #unlike}
+	 * @summary GET /api/v1/posts/{id}/likes - @see {@link #like/unlike}
 	 *
 	 * 
 	 * @summary GET /api/v1/posts/{id} - @see {@link #findById}
@@ -66,6 +66,7 @@ public class PostController {
 	 *
 	 *
 	 * @summary POST /api/v1/posts/{id}/comments - @see {@link #addComment}
+	 * @summary GET /api/v1/posts/{id}/comments - @see {@link #getComments}
 	 * 
 	 */
 	
@@ -78,6 +79,8 @@ public class PostController {
 	@Autowired
 	private ILikeService likeService;	
 	
+	@Autowired ICommentService commentService;
+	
     @Autowired
     private ESIPostService esPostService;
 
@@ -85,12 +88,6 @@ public class PostController {
 	@PostMapping("/{id}/likes")
 	public ResponseEntity<Void> like(@PathVariable int id) {
 		likeService.cachedLikePost(id);
-		return ResponseEntity.status(HttpStatus.OK).build();
-	}
-	
-	@DeleteMapping("/{id}/likes")
-	public ResponseEntity<Void> unlike(@PathVariable int id) {
-		likeService.uncachedLikePost(id);
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
@@ -141,7 +138,7 @@ public class PostController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
-	@PostMapping(path = "/{postId}/media/{mediaIds}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@DeleteMapping(path = "/{postId}/media/{mediaIds}")
 	public ResponseEntity<Void> deleteMedia(@PathVariable int postId, @PathVariable String mediaIds) {
 		List<Integer> idList = DataPreprocessingUtil.parseCommaSeparatedIds(mediaIds);
 		postService.deleteMedia(postId, idList);
@@ -149,7 +146,13 @@ public class PostController {
 	}
 	
 	@PostMapping(path = "/{id}/comments")
-	public ResponseEntity<CommentDTO> addComment(@PathVariable int id, SavedCommentDTO savedCommentDTO) {
+	public ResponseEntity<CommentDTO> addComment(@PathVariable int id, @RequestBody SavedCommentDTO savedCommentDTO) {
 		return ResponseEntity.status(HttpStatus.OK).body(postService.addComment(id, savedCommentDTO));
 	}
+	
+	@GetMapping(path = "/{id}/comments")
+	public ResponseEntity<List<CommentDTO>> getComment(@PathVariable int id, Pageable pageable) {
+		return ResponseEntity.status(HttpStatus.OK).body(commentService.findAllByPostId(id, pageable));
+	}
+
 }

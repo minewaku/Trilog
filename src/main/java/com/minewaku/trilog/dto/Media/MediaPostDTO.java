@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Builder
 public class MediaPostDTO {
+	private Integer id;
 	private String publicId;
 	private String secureUrl;
 	private Integer displayOrder;

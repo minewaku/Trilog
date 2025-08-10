@@ -34,10 +34,6 @@ public class Media {
 	@Column(name = "id")
 	private Integer id;
     
-    @OneToOne(mappedBy = "media", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private MediaPost mediaPost;
-    
     @Column(name = "public_id", nullable = false, unique = true, updatable = false)
 //    @NotBlank(message = "publicId is required")
     private String publicId;

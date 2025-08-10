@@ -63,37 +63,28 @@ public class UploadPostFacade {
 					if (file != null && !file.isEmpty()) {
 						FileUploadUtil.assertMediaAllowed(file);
 						CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadFile(file, "/trilog/posts/images");
-//						LogUtil.LOGGER.info(cloudinaryResponse.toString());
 						SavedMediaDTO savedMediaDto = SavedMediaDTO.builder()
 								.publicId(cloudinaryResponse.getPublicId())
 								.secureUrl(cloudinaryResponse.getSecureUrl())
 								.build();
 						
 					    Media mediaDto = mediaService.createForServices(savedMediaDto);
-					    LogUtil.LOGGER.info(mediaDto.toString());
 					    
 						MediaPost savedMediaPostDto = MediaPost.builder()
 								.media(mediaDto)
 								.post(savedPost)
 								.displayOrder(order)
 								.build();
-						
-//						LogUtil.LOGGER.info(savedMediaPostDto.toString());
+		
 						order++;
 						
 						savedPost.getMedia().add(savedMediaPostDto);
-						
-						savedMediaPostDto.builder().post(savedPost).build();
-//						MediaPost mediaPost = mediaMapper.mediaPostDtoToMediaPostEntity(mediaPostService.save(savedMediaPostDto));
-//						mediaPostRepository.save(savedMediaPostDto);
-					} else {
-						throw new RuntimeException("File is empty or null");
+						mediaPostRepository.save(savedMediaPostDto);
 					}
 				}
 			}
 			
-		return postMapper.entityToDto(postRepository.save(savedPost));
-//		return postMapper.entityToDto(savedPost);
+		return postMapper.entityToDto(savedPost);
 			
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);

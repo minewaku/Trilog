@@ -24,11 +24,8 @@ public class RedisUtil {
         public static final String REFRESH_TOKENS = "refreshTokens:";
         public static final String EMAIL_VERIFICATION_TOKENS = "emailVerificationTokens:";
         public static final String EMAIL_VERIFICATION_PENDING = "emailVerificationPending:";
-        public static final String LIKE_POST_ADD = "like_post_add:";
-        public static final String LIKE_POST_DELETE = "like_post_delete:";
+        public static final String LIKE_POST= "like_post:";
         public static final String VIEW_POST = "view_post:";
-        public static final String LIKE_POST_QUANTITY = "likePostQuantity:";
-        public static final String VIEW_POST_QUANTITY = "viewPostQuantity:";
     }
     
     public String getKeyWithoutPrefix(String fullKey) {

@@ -1,9 +1,5 @@
 package com.minewaku.trilog.entity;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.DynamicUpdate;
@@ -15,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,13 +48,4 @@ public class Comment extends BaseEntity {
     
     @Column(name = "content", nullable = false, length = 500)
     private String content;
-    
-    @Column(name = "created_date", updatable = false, nullable = false)
-    private LocalDateTime createdDate;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdDate = ZonedDateTime.now(ZoneId.of("Z")).toLocalDateTime();
-        comments = new HashSet<>();
-    }
 }

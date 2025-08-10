@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 @Builder
 public class CommentDTO {
+	private Integer id;
 	private String content;
 	private Integer postId;
+	private Integer userId;
 }

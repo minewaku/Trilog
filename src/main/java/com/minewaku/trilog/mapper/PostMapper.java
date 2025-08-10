@@ -60,6 +60,7 @@ public interface PostMapper {
                 .filter(MediaPost::getIsThumbnail)
                 .map(mediaPost -> {
                     MediaPostDTO dto = new MediaPostDTO();
+                    dto.setId(mediaPost.getMedia().getId());
                     dto.setPublicId(mediaPost.getMedia().getPublicId()); 
                     dto.setSecureUrl(mediaPost.getMedia().getSecureUrl()); 
                     dto.setDisplayOrder(mediaPost.getDisplayOrder());

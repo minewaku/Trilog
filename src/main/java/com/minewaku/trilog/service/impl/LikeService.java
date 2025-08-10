@@ -1,6 +1,7 @@
 package com.minewaku.trilog.service.impl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,8 +9,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.minewaku.trilog.dto.LikeDTO;
@@ -27,6 +26,8 @@ import com.minewaku.trilog.util.LogUtil;
 import com.minewaku.trilog.util.RedisUtil;
 import com.minewaku.trilog.util.SecurityUtil;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class LikeService implements ILikeService {
 	
@@ -35,6 +36,9 @@ public class LikeService implements ILikeService {
 	
 	@Autowired
 	private RedisUtil redisUtil;
+	
+	@Autowired
+	private PostService postService;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -54,15 +58,35 @@ public class LikeService implements ILikeService {
 	}
 	
 	@Override
+	@Transactional
 	public List<Like> saveAll(List<Like> entities) {
-		return likeRepository.saveAll(entities);
+	    if (entities == null || entities.isEmpty()) {
+	        return List.of();
+	    }
+
+	    List<Like> resultLikes = new java.util.ArrayList<>();
+
+	    for (Like like : entities) {
+	        LikeId id = LikeId.builder()
+	                .postId(like.getPost().getId())
+	                .userId(like.getUser().getId())
+	                .build();
+
+	        if (likeRepository.existsById(id)) {
+	            // Nếu tồn tại thì xóa
+	            likeRepository.deleteById(id);
+	        } else {
+	            // Nếu chưa tồn tại thì thêm
+	            resultLikes.add(likeRepository.save(like));
+	        }
+	        
+	        LogUtil.LOGGER.error("like: {}", like);
+	    }
+
+	    return resultLikes;
 	}
-	
-	@Override
-	public void deleteAll(List<LikeId> ids) {
-		likeRepository.deleteAllById(ids);
-	}
-	
+
+
 	@Override
 	public void cachedLikePost(Integer postId) {
 		User userDetails = (User) SecurityUtil.getPrincipal(); 
@@ -78,64 +102,14 @@ public class LikeService implements ILikeService {
     			}
     		);
         
-        Object addValue = redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_ADD, compositeKey);
-        Object deleteValue = redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_DELETE, compositeKey);
+        boolean exists = redisUtil.keyExists(RedisUtil.CACHE_PREFIX.LIKE_POST, compositeKey);
         
-		if (addValue == null && deleteValue == null) {
-			redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_ADD, compositeKey, LocalDateTime.now());
-			
-			try {
-				Integer likes = (Integer) redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString());
-				if(likes == null) {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikeCount());
-				} else {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), likes + 1);
-				}
-			} catch (ClassCastException e) {
-				throw errorUtil.ERROR_DETAILS.get(errorUtil.INTERNAL_SERVER_ERROR);
-			}
-		} else if(addValue == null && deleteValue != null ) {
-			redisUtil.deleteKey(RedisUtil.CACHE_PREFIX.LIKE_POST_DELETE, compositeKey);
-		} else if (addValue != null && deleteValue == null) {
-			throw errorUtil.ERROR_DETAILS.get(errorUtil.REQUEST_IN_PROGRESS);
-		}
-	}
-	
-	@Override
-	public void uncachedLikePost(Integer postId) {
-		User userDetails = (User) SecurityUtil.getPrincipal();  
-		
-		User user = userRepository.findById(userDetails.getId()).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.USER_NOT_FOUND));
-        Post post = postRepository.findById(postId).orElseThrow(() -> errorUtil.ERROR_DETAILS.get(errorUtil.POST_NOT_FOUND));
-        
-		String compositeKey = redisUtil
-    		.makeCompositeKey(new String[]
-    			{
-    				user.getId().toString(), 
-    				post.getId().toString()
-    			}
-    		);
-		
-        Object addValue = redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_ADD, compositeKey);
-        Object deleteValue = redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_DELETE, compositeKey);
-        
-		if (addValue == null && deleteValue == null) {
-			redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_DELETE, compositeKey, LocalDateTime.now());
-			
-			try {
-				Integer likes = (Integer) redisUtil.getValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString());
-				if(likes == null) {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), post.getLikeCount());
-				} else {
-					redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST_QUANTITY, post.getId().toString(), likes - 1);
-				}
-			} catch (ClassCastException e) {
-				throw errorUtil.ERROR_DETAILS.get(errorUtil.INTERNAL_SERVER_ERROR);
-			}
-		} else if (addValue != null && deleteValue == null) {
-			redisUtil.deleteKey(RedisUtil.CACHE_PREFIX.LIKE_POST_DELETE, compositeKey);
-		} else if (addValue == null && deleteValue != null) {
-			throw errorUtil.ERROR_DETAILS.get(errorUtil.REQUEST_IN_PROGRESS);
+		if (!exists) {
+			DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+			String value = LocalDateTime.now().format(formatter);
+			redisUtil.setValue(RedisUtil.CACHE_PREFIX.LIKE_POST, compositeKey, value);
+		} else {
+			redisUtil.deleteKey(RedisUtil.CACHE_PREFIX.LIKE_POST, compositeKey);
 		}
 	}
 }
